@@ -6,6 +6,7 @@ outputXdem/
 plots/
 tables/
 data/
+figs/
 __pycache__/helpers.cpython-39.pyc
 __pycache__/meta.cpython-39.pyc
 *.txt

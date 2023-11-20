@@ -77,10 +77,10 @@ VolData_absolute.py :
 
 ---
 
-dV_perGlacier.py : 
-- area and vol change per size class and for indiv. glaciers
-- absolute volume for 2006 per glacier (clip ice thickness raster with GI3 shapefiles)
-- make volume change table and write to csv (VolumeTable_v3.csv)
+dV_perGlacier.py :   
+* area and vol change per size class and for indiv. glaciers  
+* absolute volume for 2006 per glacier (clip ice thickness raster with GI3 shapefiles)  
+* make volume change table and write to csv (VolumeTable_v3.csv)  
 
 
 
@@ -127,8 +127,3 @@ procDEMS_new.py - this is more current (?)
 ## not needed:
 Variability Plots: 
 Make plots of hypsometry, variability of dz, etc. plots mostly based on csv files generated in setup_bins.py. 
-
-Geometry plots: probably not needed, maybe use as basis for plots binning by aspect/eleation somehow
-
-open Qs: 
-start/end year of periods for dz calculation: conistency...

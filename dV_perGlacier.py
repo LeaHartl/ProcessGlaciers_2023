@@ -1,8 +1,6 @@
-#! /usr/bin/env python3
 import numpy as np
 import pandas as pd
-# import xarray as xr
-import os
+
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from matplotlib.colors import ListedColormap
@@ -10,23 +8,12 @@ from matplotlib import gridspec
 import matplotlib as mpl
 from scipy.stats import circmean
 
-import fiona
-import os
-os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
-
-from bokeh.plotting import figure, save, output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, ColorBar, GeoJSONDataSource
-from bokeh.palettes import RdYlBu11 as palette
-from bokeh.palettes import viridis
-from bokeh.models import LogColorMapper, LinearColorMapper
 
 import geoutils as gu
 import xdem
 
-# import EAZ_vis as ev
-# import EAZ_setup as st
-import procDEMS_1 as proc
+import helpers as proc
 import meta as mt
 # -------------------------------------------
 
@@ -173,8 +160,6 @@ def getDZ_perSizeClass(dif, shp, rep, pxsize):
     return (dz_class)
 
 
-
-
 # count glaciers per size class, get area per size class
 def countGlaciers(mGG):
     mG = gpd.read_file(mGG)
@@ -242,11 +227,8 @@ def getAspect(aspectdem, slopedem, shp):
 meta = mt.meta
 
 # ice thickness data:
-# read raster, set crs, save raster as tif with crs
-# ice = '/Users/leahartl/Desktop/OGGM_Patrick/GI3_ice_thickness_clip.tif'
-# proc.SetCRSIceThk(ice)
 # read raster file with proper crs settings
-ice_crs = '/Users/leahartl/Desktop/OGGM_Patrick/GI3_ice_thickness_clip_crs.tif'
+ice_crs = 'data/GI3_ice_thickness_clip_crs.tif'
 
 # -------------------------------------------
 
@@ -285,7 +267,7 @@ df_dz_class['dz_px_km3_(meandz*ar)'] = df_dz_class['dz_mean*area'] * 1e-9
 # print(df_dz_class)
 
 # get volume per size class, make table
-Vol_class_2006  = getDZ_perSizeClass('/Users/leahartl/Desktop/OGGM_Patrick/GI3_ice_thickness_clip_crs.tif', meta['GI3']['shp'], 'reproject', 10)
+Vol_class_2006  = getDZ_perSizeClass('data/GI3_ice_thickness_clip_crs.tif', meta['GI3']['shp'], 'reproject', 10)
 
 Vol_class_2006['vol_px_km3'] = Vol_class_2006['dz_px'] * 1e-9
 Vol_class_2006['percLoss'] = 100 * (df_dz_class['dz_px_km3']) / Vol_class_2006['vol_px_km3']
@@ -322,12 +304,11 @@ dA_p3 = get_dA(gpd.read_file(meta['GI3']['shp']), gpd.read_file(meta['GI5']['shp
 
 # merge to one dataframe for all periods
 dA_12 = dA_p1.merge(dA_p2, how='outer', on='nr', suffixes=('_1', '_2'))
-dA = dA_12.merge(dA_p3, how='outer', on='nr', suffixes=(False))
+dA = dA_12.merge(dA_p3, how='outer', on='nr', suffixes=(False, False))
 dA.rename(columns={'dA': 'dA_3', 'nr': 'ID'}, inplace=True)
 print(dA)
-
-
-
+print('bla')
+#stop
 # xdem version of the function is quite a bit slower, results for vol change are the same. use the other one (my version w shapely loop)
 dz_p1 = getDZ(meta['GI2']['f_dif'], meta['GI1']['shp'])
 # dz_p1 = getDZ_xdem(meta['GI2']['f_dif'], meta['GI1']['shp'])
@@ -340,7 +321,7 @@ dz_p3 = getDZ(meta['GI5']['f_dif'], meta['GI3']['shp'])
 dz_p3['ID'] = dz_p3.index
 
 dz_12 = dz_p1.merge(dz_p2, how='inner', on='ID', suffixes=('_1', '_2'))
-dz = dz_12.merge(dz_p3, how='inner', on='ID', suffixes=(False))
+dz = dz_12.merge(dz_p3, how='inner', on='ID', suffixes=(False, False))
 dz.rename(columns={'dV': 'dV_3'}, inplace=True)
 print('dz: ', dz.head())
 # stop
@@ -352,7 +333,7 @@ dAll.rename(columns={'ID': 'nr'}, inplace=True)
 A_gpd = dAll.merge(gpd.read_file(meta['GI3']['shp']), on='nr', how = 'inner')
 
 All_gpd = gpd.GeoDataFrame(A_gpd, geometry=A_gpd.geometry)
-#print(All_gpd)
+
 
 #All_gpd.drop(columns=['Area', 'nr'], inplace=True)
 
@@ -362,9 +343,8 @@ All_gpd['area'] = All_gpd['geometry'].area
 # print(All_gpd.crs)
 
 
-#stop
-# absolute ice volume stuff:
 
+# absolute ice volume stuff:
 # read shapefile of glacier boundary 2006
 GI3 = meta['GI3']['shp']
 gpdGI3 = gpd.read_file(GI3)
@@ -374,11 +354,11 @@ gpdGI5 = gpd.read_file(GI5)
 
 # make reprojected file and save - project to crs of the ice thickness raster
 gpdGI3_reproj = gpdGI3.to_crs(31287)
-gpdGI3_reproj.to_file('mergedGI3_31287.shp')
+gpdGI3_reproj.to_file('data/mergedGI3_31287.shp')
 
 # read reprojected file, export list of shapes
 #shapes, IDs = proc.listShapes('/Users/leahartl/Desktop/OGGM_Patrick/Oetztaler_Alpen_GI3_31287.shp', 'ID')
-shapes, IDs = proc.listShapes('mergedGI3_31287.shp', 'nr')
+shapes, IDs = proc.listShapes('data/mergedGI3_31287.shp', 'nr')
 
 
 # loop through clipping function, export df of extracted volume per glacier
@@ -448,8 +428,8 @@ print(All_gpd.loc[All_gpd.dV_3 > 0])
 
 
 
-# All_gpd.drop(All_gpd[All_gpd.ID == 0].index, inplace=True)
-# All_gpd[['ID', 'Gletschern', 'dA_1', 'dA_2', 'dA_3', 'dV_1', 'dV_2', 'dV_3']].to_csv('output_tabular_1.csv')
+# All_gpd.drop(All_gpd[All_gpd.ID == nr].index, inplace=True)
+All_gpd[['nr', 'Gletschern', 'dA_1', 'dA_2', 'dA_3', 'dV_1', 'dV_2', 'dV_3']].to_csv('data/output_tabular_1.csv')
 # All_gpd[['ID', 'Gletschern', 'dA_1', 'dA_2', 'dA_3', 'dV_1', 'dV_2', 'dV_3', 'geometry']].to_file('boundaries_2006.shp')
 
 fig, ax = plt.subplots(1, 2)

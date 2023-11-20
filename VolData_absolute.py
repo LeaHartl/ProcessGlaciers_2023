@@ -1,24 +1,15 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-# import os
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from matplotlib.colors import ListedColormap
 from matplotlib import gridspec
 import matplotlib as mpl
 
-# import fiona
-# import os
 import geopandas as gpd
 import rasterio
 import rioxarray
-
-# from bokeh.plotting import figure, save, output_file, show
-# from bokeh.models import ColumnDataSource, HoverTool, ColorBar, GeoJSONDataSource
-# from bokeh.palettes import RdYlBu11 as palette
-# from bokeh.palettes import viridis
-# from bokeh.models import LogColorMapper, LinearColorMapper
 
 import helpers as proc
 import meta as mt
@@ -203,6 +194,12 @@ def writewarped(yr, ice_crs):
 
 writetodisk(2100, combined_ice)
 writewarped(2100, ice_crs)
+writetodisk(2030, combined_ice)
+writewarped(2030, ice_crs)
+writetodisk(2050, combined_ice)
+writewarped(2050, ice_crs)
+writetodisk(2075, combined_ice)
+writewarped(2075, ice_crs)
 
 d17 = rioxarray.open_rasterio('data/ice_2100_resamp.tif', engine='netcdf4')
 print(d17)

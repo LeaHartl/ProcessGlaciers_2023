@@ -1,20 +1,12 @@
-# import procDEMS as proc
-# import EAZ_setup as st
-# import rasterio
-# from rasterio.plot import show
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-# import seaborn as sns
-# import procDEMS_new as proc
 import geoutils as gu
 import xdem
 import meta as mt
-#import Sulzenauferner_clip as sulzenau
 
-
-meta=mt.meta
+meta = mt.meta
 
 # subroutine to get area change from area, write to dataframe
 def get_dA2(dfarea):
@@ -112,10 +104,6 @@ def getdV(outlines, dh_fn, y1, y2, missing):
         #dfdV.loc[3032, 'dh/a'] = sul['dh/a'].loc[sul.y2==2017].values[0]
         dfdV.loc[3032, 'dV/a'] = sul['dV/a'].loc[sul.y2==2017].values[0]
 
-
-
-
-
     print(dfdV)
     print(dfdV.loc[dfdV.index==3032])
     dfdV.to_csv('tables/volumechange'+str(y1)+'_'+str(y2)+'.csv')
@@ -143,11 +131,11 @@ print(gone)
 GI3_y = mt.GI3_y
 dh_1969 = meta['GI2']['f_dif']
 dh_1997 = meta['GI3']['f_dif']
-dh_1997 = meta['GI5']['f_dif']
+dh_2006 = meta['GI5']['f_dif']
 
 dfdV19691997 = getdV(GI1, dh_1969, 1969, 1997, 'no')
 dfdV19972006 = getdV(GI2, dh_1997, 1997, 2006, 'yes')
-dfdV20062017 = getdV(GI3_y, dh_1997, 2006, 2017, 'yes')
+dfdV20062017 = getdV(GI3_y, dh_2006, 2006, 2017, 'yes')
 
 # read csv of volume change produced in above function
 dfdV20062017 = pd.read_csv('tables/volumechange'+str(2006)+'_'+str(2017)+'.csv', index_col='nr')
