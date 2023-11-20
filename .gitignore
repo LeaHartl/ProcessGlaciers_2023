@@ -6,5 +6,7 @@ outputXdem/
 plots/
 tables/
 data/
+__pycache__/helpers.cpython-39.pyc
+__pycache__/meta.cpython-39.pyc
 *.txt
 **/.DS_Store
