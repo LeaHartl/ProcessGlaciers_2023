@@ -53,6 +53,10 @@ Misc_GeoProcessing.py contains [stuff that didn't fit anywhere else]
 ---
 ---
 ---
+## for further processing: 
+**IMPORTANT: meta.py : dictionary with filenames !!!**
+set file paths in meta.py and import this as needed (--> avoid setting paths in each script...)
+
 
 Folders: 
 OG/ DEMs as provided by land tirol (2006 and 17/18)
@@ -73,14 +77,10 @@ procDEMS_new.py - this is more current (?)
 
 
 
-for further processing: 
-set file paths in meta.py and import this as needed (--> avoid setting paths in each script...)
 
 AreaVolChange.py: Generates area and volume change for individual glaciers and all time steps, writes to csv. gets list of id noumbers of "gone glaciers"
 
-IMPORTANT: meta.py : dictionary with filenames !!!
 
--------
 
 RERUN THIS AGAIN ONCE FINAL OUTLINES ARE AVAILABLE!!
 Tests.py : various experiements with Xdem package
