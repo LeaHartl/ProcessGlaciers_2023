@@ -1,0 +1,9 @@
+geoutils/
+glacierenv/
+mergedOutlines/
+outlines/
+outputXdem/
+plots/
+tables/
+*.txt
+**/.DS_Store
