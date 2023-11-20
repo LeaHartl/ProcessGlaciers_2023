@@ -31,8 +31,10 @@ in AlignDEMS.py
     
 * ErrorPlots.py : makes plot of uncertainties vs slope / boxplot (reads csv files generated in plot_standardization_tirol.py) 
 
+* SlopeAspect.py compute and save slope and aspect rasters for 2017/18. 
 
 ------
+note: updated xdem to 0.0.10 and GU to 0.0.12. GU breaks for more recent versions (0.0.15)
 
 ## Shapefile processing:     
 start with pangea files.
@@ -42,7 +44,8 @@ merge Ötztal and Stubai:
 Sulzenauferner_clip.py:   
 * looks at 2017/18 difference where the dateline crosses Sulzenauferner
 * makes ROI overview plot. 
-* prints area ratios for different years. Prints glaciers that are gone in GI5 with area, nr, name
+* prints area ratios for different years.   
+* Prints glaciers that are gone in GI5 with area, nr, name
 
 ---
 Misc_GeoProcessing.py contains [stuff that didn't fit anywhere else]
@@ -53,60 +56,32 @@ Misc_GeoProcessing.py contains [stuff that didn't fit anywhere else]
 ---
 ---
 ---
-## for further processing: 
-**IMPORTANT: meta.py : dictionary with filenames !!!**
-set file paths in meta.py and import this as needed (--> avoid setting paths in each script...)
+## for further processing:   
 
+**IMPORTANT: meta.py : dictionary with filenames !!!**  
 
-Folders: 
-OG/ DEMs as provided by land tirol (2006 and 17/18)
-proc_dems/ merged (1969, 1997) and resampled files
-	'dem_1969_merged_5.tif': Stubai & Ötztal 1969 files merged, 5x5m resolution
-	'dem_1997_merged_5.tif': Stubai & Ötztal 1997 files merged, 5x5m resolution
-	1969 and 1997 are aligned with each other (same extent, same grid)
-	CRS : crs code not set properly in 2006 OG file - correct projection but code has to be reset
+set file paths in meta.py and import this as needed (--> avoid setting paths in each script...)   
 
-xdem1/ output rasters of xdem calculations
+---
+AreaVolChange.py:   
+* Generates area and volume change for individual glaciers and all time steps, writes to csv.   
+* gets list of id numbers of "gone glaciers" 
 
------
-
-procDems_1.py : helper functions for rasters, current version of the file. 
-procDEMS_new.py - this is more current (?)
---> checks these and unify in one file.
-
-
-
-
-
-AreaVolChange.py: Generates area and volume change for individual glaciers and all time steps, writes to csv. gets list of id noumbers of "gone glaciers"
-
-
-
-RERUN THIS AGAIN ONCE FINAL OUTLINES ARE AVAILABLE!!
-Tests.py : various experiements with Xdem package
-
-plot_infer_heterosc_tirol.py : deals with terrain dependent elevation errors, input for error table.
-
-plot_standardization_tirol.py : uncertainties from elevation errors, computes variograms, writes csvs with errors/uncertainties per glacier
-
-
-## 
-
+---
 
 VolData_absolute.py : 
-- deal with ice thickness raster and prduce various derivatives (ice thickness raster for 2017 based on dif dem 2006 -2017 and absolute ice thickness 2006, clipped rasters, ...)
-- make plot "years till melt"
-- generate ice thickness data per year per pixel until 2100, write that to .nc file for further processing
-- generate geotif rasters of ice thickness data for individual years, write to disk
+* deal with ice thickness raster and prduce various derivatives (ice thickness raster for 2017 based on dif dem 2006 -2017 and absolute ice thickness 2006, clipped rasters, ...)
+* make plot "years till melt"
+* generate ice thickness data per year per pixel until 2100, write that to .nc file for further processing
+* generate geotif rasters of ice thickness data for individual years, write to disk
 
-
+---
 
 dV_perGlacier.py : 
 - area and vol change per size class and for indiv. glaciers
 - absolute volume for 2006 per glacier (clip ice thickness raster with GI3 shapefiles)
 - make volume change table and write to csv (VolumeTable_v3.csv)
 
-SlopeAspect.py compute and save slope and aspect rasters for 2017/18. 
 
 
 
@@ -125,6 +100,27 @@ makes map figure coloring glaciers by percentage loss.
 makes compound figure change rates (map, histogram, elevation change)
 makes compound figure relative change (aspect, slope, cumulative vol/area)
 makes hypsometry plot and fig with scatter subplots for constant change rate scenario.
+
+
+Folders: 
+OG/ DEMs as provided by land tirol (2006 and 17/18)
+proc_dems/ merged (1969, 1997) and resampled files
+	'dem_1969_merged_5.tif': Stubai & Ötztal 1969 files merged, 5x5m resolution
+	'dem_1997_merged_5.tif': Stubai & Ötztal 1997 files merged, 5x5m resolution
+	1969 and 1997 are aligned with each other (same extent, same grid)
+	CRS : crs code not set properly in 2006 OG file - correct projection but code has to be reset
+
+xdem1/ output rasters of xdem calculations
+
+
+
+procDems_1.py : helper functions for rasters, current version of the file. 
+procDEMS_new.py - this is more current (?)
+--> checks these and unify in one file.
+
+
+
+
 
 
 
