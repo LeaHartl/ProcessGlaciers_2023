@@ -44,12 +44,13 @@ Vol = pd.read_csv('tables/VolumeTable_v3.csv', index_col='Unnamed: 0')
 # print(Vol.shape)
 #print(Vol.loc[Vol['area_dif']<0])
 #Vol.loc[Vol['area_dif']<0] = np.nan
+print(Vol.head())
 growing = Vol.loc[Vol['dV']>0]
 print('growing: ', growing[['dV', 'area_dif', 'nr', 'area_gpd_GI5', 'area_gpd_GI3']])
 # print(Vol.loc[Vol['dV']>0])
 
 #print(Vol.loc[Vol['VolDifPrc']<0])
-
+stop
 goneGlaciers = Vol.loc[Vol['VolDifPrc']<0]
 print('gone glaciers:', goneGlaciers)
 print('gone glaciers, nr:', goneGlaciers.shape)
