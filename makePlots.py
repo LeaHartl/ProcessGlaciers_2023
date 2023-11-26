@@ -40,17 +40,23 @@ gpdGI5 = gpd.read_file(GI5)
 
 # read volume table
 Vol = pd.read_csv('tables/VolumeTable_v3.csv', index_col='Unnamed: 0')
+# check other table version: 
+# tab = pd.read_csv('data/output_tabular_1.csv', index_col='Unnamed: 0')
+# print(tab.head())
 # print(Vol.columns)
 # print(Vol.shape)
 #print(Vol.loc[Vol['area_dif']<0])
 #Vol.loc[Vol['area_dif']<0] = np.nan
 print(Vol.head())
 growing = Vol.loc[Vol['dV']>0]
+
 print('growing: ', growing[['dV', 'area_dif', 'nr', 'area_gpd_GI5', 'area_gpd_GI3']])
+
+# print('growing 2: ', tab.loc[tab.dV_3>0])
 # print(Vol.loc[Vol['dV']>0])
 
 #print(Vol.loc[Vol['VolDifPrc']<0])
-stop
+# stop
 goneGlaciers = Vol.loc[Vol['VolDifPrc']<0]
 print('gone glaciers:', goneGlaciers)
 print('gone glaciers, nr:', goneGlaciers.shape)
@@ -270,6 +276,15 @@ def getHyps(dif, dem, shapes, BinsAlt):
     for i, b in enumerate(BinsAlt[:-1]):
         dat = data.dif.where((data.dem>=BinsAlt[i]) & (data.dem<BinsAlt[i+1]))
 
+        # # plot a slice as reality check
+        # dat2 = data.dif.where((data.dem>=BinsAlt[22]) & (data.dem<BinsAlt[22+5]))
+        # print(BinsAlt[22], BinsAlt[22+5])
+        # # print(~dat2[dat2.isnull()])
+        # ff, xx = plt.subplots(1, 1)
+        # dat2.plot.imshow(ax=xx, yincrease=False)
+        # plt.show()
+        # stop
+
         r = dat.mean(skipna=True)
         rr.append(r.item(0))
 
@@ -283,30 +298,23 @@ def getHyps(dif, dem, shapes, BinsAlt):
         sums.append(sm.item(0))
 
         bins.append(b)
-
-    # print(count)
-    
-    rs = pd.Series(rr, index= bins)
-    sd = pd.Series(sd, index= bins)
+   
+    rs = pd.Series(rr, index=bins)
+    sd = pd.Series(sd, index=bins)
     count = pd.Series(count, index=bins)
     sms = pd.Series(sums, index=bins)
 
     print(count)
     print(count.sum()*25)
-    
-    return (rs, sd, count, sms)  
+
+    return (rs, sd, count, sms)
 
 
-
-
-
-
-
-#makes gridspec figure with 3 subplots, dz (m/a) map, histogram, hypsometry of mean dz.
+# makes gridspec figure with 3 subplots, dz (m/a) map, histogram, hypsometry of mean dz.
 def figDZmap(meta):
 
-    outlines5 = gu.Vector(meta['GI5']['shp'])
     outlines3 = gu.Vector(meta['GI3']['shp'])
+    outlines5 = gu.Vector(meta['GI5']['shp'])
 
     fig = plt.figure(constrained_layout=False, figsize=(10, 7))
     spec2 = gridspec.GridSpec(ncols=3, nrows=2, figure=fig)
@@ -318,8 +326,8 @@ def figDZmap(meta):
 
     norm = colors.TwoSlopeNorm(vcenter=0, vmin=-3, vmax=0.1)
 
-    with fiona.open(meta['GI3']['shp'], "r") as shapefile:
-        shapes = [feature["geometry"] for feature in shapefile]
+    # with fiona.open(meta['GI3']['shp'], "r") as shapefile:
+    #     shapes = [feature["geometry"] for feature in shapefile]
 
     raster = rasterio.open('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif')
     raster1 = np.reshape(raster.read(), (raster.read().shape[0]*raster.read().shape[1], raster.read().shape[2]))
@@ -329,7 +337,7 @@ def figDZmap(meta):
 
     outlines3.ds.plot(ax=ax1, alpha=1, edgecolor="grey", facecolor='none', linestyle='--', linewidth=0.5)
     outlines5.ds.plot(ax=ax1, alpha=1, edgecolor="k", facecolor='none', linewidth=0.5)
-    
+   
     ax1.set_xlim([20000, 75000])
     ax1.set_ylim([179000, 229000])
     ax1.set_xlabel('m')
@@ -353,13 +361,17 @@ def figDZmap(meta):
     ax2.yaxis.tick_right()
 
 
-    dat, sd, count, sm = getHyps('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif', '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/aligned_resampled_2_5m_tir1718_Clip.tif', 
-        gpd.read_file(meta['GI3']['shp']).geometry, np.arange(2000, 4000, 50))
+    dat, sd, count, sm = getHyps('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif', 
+        '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/aligned_resampled_2_5m_tir1718_Clip.tif', 
+        outlines3.ds.geometry, np.arange(2000, 4000, 50))
+        # gpd.read_file(meta['GI3']['shp']).geometry, np.arange(2000, 4000, 50))
 
     print(count.sum()*25)
+    print(dat.values)
+    print(dat)
     
     # shift up by half bin size (25) to plot values in the middle of respective elevation bins
-    ax3.plot(25+dat.values, dat.index, color='slategray', zorder=4)#, edgecolor='k')
+    ax3.plot(dat.values, 25+dat.index, color='slategray', zorder=4)#, edgecolor='k')
     # ax3.plot(dat.values, dat.index, color='slategray')#
     ax3.fill_betweenx(25+dat.index, dat.values-sd.values, dat.values+sd.values, alpha=0.2)
     ax3.grid('both')
@@ -633,10 +645,12 @@ def plotHyps(goneGlaciers):
 
 
 #
-# figDZmap(meta)
+figDZmap(meta)
+plt.show()
+stop
 # figRelChange(meta, Vol)
-plotVolArHyps(goneGlaciers)
-plotHyps(goneGlaciers)
+# plotVolArHyps(goneGlaciers)
+# plotHyps(goneGlaciers)
 
 
 # def plot_dzGl(dat, fn):
@@ -680,8 +694,8 @@ plotHyps(goneGlaciers)
 #     fig.savefig('Range.png')
 
 
-mapFig(gpdGI3, gpdGI5, Vol, goneGlaciers)
-mapFig2(gpdGI3, gpdGI5, Vol, goneGlaciers)
+# mapFig(gpdGI3, gpdGI5, Vol, goneGlaciers)
+# mapFig2(gpdGI3, gpdGI5, Vol, goneGlaciers)
 
 # ScatterFig(gpdGI3, gpdGI5, Vol, goneGlaciers)
 # ScatterFig2(gpdGI3, gpdGI5, Vol, goneGlaciers)

@@ -1,8 +1,7 @@
 # Unfinished WIP
 ## DEM processing:   
 # Step 1, basic processing:  
-in AlignDEMS.py 
-(AlignDEMS.py: Steps to resample DEMs to 5m resolution & merge stubai and otztal (1969 & 1997). Generates and saves new resampled/merged .tif files. uncomment stuff as needed, this is not set up to run in one go and needs manual adjustment, i.e. uncommenting, if something needs to be regenerated)
+AlignDEMS.py: Steps to resample DEMs to 5m resolution & merge stubai and otztal (1969 & 1997). Generates and saves new resampled/merged .tif files. uncomment stuff as needed, this is not set up to run in one go and needs manual adjustment, i.e. uncommenting, if something needs to be regenerated.
 * all DEMs resampled to 5mx5m resolution  
 * Stubai & Ötztal merged for 1969 and 1997  
 * CRS code reset for 2006 (correct projection but no proper espg number)  
@@ -12,30 +11,30 @@ in AlignDEMS.py
 # Step 2: coregister all the resampled, aligned DEMs to the 2017 DEM:  
 * NuthKaab coregistration to 2017 DEM (--> 1969, 1997, 2006 coregistered to 2017 - all after alignment and resmpling)
 	in: coregistration_plot_nuth_kaab.py / output: coregistered DEMs for 1969, 1997, 2006 in folder xdem1
-	this is very similar to examples in the xdem tutorials. ran these last with xdem==0.0.9, geoutils== 0.0.12
+	this is very similar to examples in the xdem tutorials. ran these last with xdem==0.0.9, geoutils== 0.0.12 --> not adjusted for updated xdem and GU!
  
 # Step 3: generate dif rasters with the aligned, coregistered DEMS:   
 * dif raster generation on aligned, coregistered DEMs
-	in: AlignDEMS.py 
+	in AlignDEMS.py 
 
 # Step 4: Error estimation:
 * run "plot_infer_heterosc_tirol.py" to get estimate of elevation error for different slop/curvature combinations
 
     output: plot of elevation error and table with values for different slopes and curvatures
 	
-    this is very similar to examples in the xdem tutorials. Input files are the coregsitered DEMs and the glacier outlines (GI1, GI2, GI3). Slow! ran these last with xdem==0.0.9, geoutils== 0.0.12
+    this is very similar to examples in the xdem tutorials. Input files are the coregsitered DEMs and the glacier outlines (GI1, GI2, GI3). Slow! ran these last with xdem==0.0.9, geoutils== 0.0.12 --> not adjusted for updated xdem and GU!
 
 * run "plot_standardization_tirol.py" to get dz uncertainty estimates for mean dz of all glaciers 
 	
     output is a table where each glaciers is a row
-    this is very similar to examples in the xdem tutorials. Input files are the coregsitered DEMs and the GI1 glacier outlines. Slow!! Not checked for xdem version dependency, ran these last with xdem==0.0.9, geoutils== 0.0.12  
+    this is very similar to examples in the xdem tutorials. Input files are the coregsitered DEMs and the GI1 glacier outlines. Slow!! Not checked for xdem version dependency, ran these last with xdem==0.0.9, geoutils== 0.0.12 --> not adjusted for updated xdem and GU! 
     
 * ErrorPlots.py : makes plot of uncertainties vs slope / boxplot (reads csv files generated in plot_standardization_tirol.py) 
 
 * SlopeAspect.py compute and save slope and aspect rasters for 2017/18. 
 
 ------
-note: updated xdem to 0.0.10 and GU to 0.0.12. GU breaks for more recent versions (0.0.15)
+note: updated xdem to 0.0.10 and GU to 0.0.12. GU install breaks for more recent versions (0.0.15), have not figured out why
 
 ## Shapefile processing:     
 start with pangea files.
@@ -59,7 +58,7 @@ Misc_GeoProcessing.py [stuff that didn't fit anywhere else]
 ---
 ## for further processing:   
 
-**IMPORTANT: meta.py : dictionary with filenames !!!**  
+**IMPORTANT: meta.py : dictionary with file paths and names !!!**  
 
 set file paths in meta.py and import this as needed (--> avoid setting paths in each script...)   
 
@@ -83,33 +82,30 @@ dV_perGlacier.py :
 * absolute volume for 2006 per glacier (clip ice thickness raster with GI3 shapefiles)  
 * make volume change table and write to csv (VolumeTable_v3.csv). This also makes a dV and dA table with all time steps, check which format is needed? (see AreaVolChange.py for alternative version...)
 
+---
 
+setup_bins.py :  
+* deal with generating dz per elevation bins. this makes csv files. can be adjusted to do it for ice volume rasters or dif dems. 
 
+---
 
-setup_bins.py :
-deal with generating dz per elevation bins. this makes csv files. can be adjusted to do it for ice volume rasters or dif dems. 
+makePlots.py :  
+* read shapefiles and csv table of A and V changes per glacier, print number of glaciers with X amount of volume loss, etc.  
+* makes map figure coloring glaciers by percentage loss.  
+* makes compound figure change rates (map, histogram, elevation change)  
+* makes compound figure relative change (aspect, slope, cumulative vol/area)  
+* makes hypsometry plot and fig with scatter subplots for constant change rate scenario.  
 
-
-
-
-
-
-
-makePlots.py:
-read shapefiles and csv table of A and V changes per glacier, print number of glaciers with X amount of volume loss, etc. 
-makes map figure coloring glaciers by percentage loss.
-makes compound figure change rates (map, histogram, elevation change)
-makes compound figure relative change (aspect, slope, cumulative vol/area)
-makes hypsometry plot and fig with scatter subplots for constant change rate scenario.
-
-
+---
 Folders: 
-OG/ DEMs as provided by land tirol (2006 and 17/18)
-proc_dems/ merged (1969, 1997) and resampled files
-	'dem_1969_merged_5.tif': Stubai & Ötztal 1969 files merged, 5x5m resolution
-	'dem_1997_merged_5.tif': Stubai & Ötztal 1997 files merged, 5x5m resolution
-	1969 and 1997 are aligned with each other (same extent, same grid)
-	CRS : crs code not set properly in 2006 OG file - correct projection but code has to be reset
+
+OG/ DEMs as provided by land tirol (2006 and 17/18)  
+
+proc_dems/ merged (1969, 1997) and resampled files  
+* 'dem_1969_merged_5.tif': Stubai & Ötztal 1969 files merged, 5x5m resolution  
+* 'dem_1997_merged_5.tif': Stubai & Ötztal 1997 files merged, 5x5m resolution  
+* 1969 and 1997 are aligned with each other (same extent, same grid)  
+* CRS : crs code was not set properly in 2006 OG file - correct projection but code has to be reset  
 
 xdem1/ output rasters of xdem calculations
 
