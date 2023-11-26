@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-# import os
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from matplotlib.colors import ListedColormap
@@ -12,21 +11,18 @@ import matplotlib.colors as colors
 
 import fiona
 
-import helpers as proc
-import meta as mt
-
 import rasterio
 from rasterio.mask import mask
 from rasterio.plot import show
 import numpy as np
 import pandas as pd
 
-# import os
-# # os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 
 import geoutils as gu
 import xdem
+import helpers as proc
+import meta as mt
 
 
 

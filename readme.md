@@ -1,3 +1,4 @@
+# Unfinished WIP
 ## DEM processing:   
 # Step 1, basic processing:  
 in AlignDEMS.py 
@@ -48,7 +49,7 @@ Sulzenauferner_clip.py:
 * Prints glaciers that are gone in GI5 with area, nr, name
 
 ---
-Misc_GeoProcessing.py contains [stuff that didn't fit anywhere else]
+Misc_GeoProcessing.py [stuff that didn't fit anywhere else]
 * Make raster of flights years (2017 and 2018 per pixel), uses that to make dif dem in m/a for 2016-2017/18 period.
 * clip dif_ma with gi3 boundary (didn't know where to put this, should move to some better place.)
 ---
@@ -80,7 +81,7 @@ VolData_absolute.py :
 dV_perGlacier.py :   
 * area and vol change per size class and for indiv. glaciers  
 * absolute volume for 2006 per glacier (clip ice thickness raster with GI3 shapefiles)  
-* make volume change table and write to csv (VolumeTable_v3.csv)  
+* make volume change table and write to csv (VolumeTable_v3.csv). This also makes a dV and dA table with all time steps, check which format is needed? (see AreaVolChange.py for alternative version...)
 
 
 
@@ -114,9 +115,6 @@ xdem1/ output rasters of xdem calculations
 
 
 
-procDems_1.py : helper functions for rasters, current version of the file. 
-procDEMS_new.py - this is more current (?)
---> checks these and unify in one file.
 
 
 
