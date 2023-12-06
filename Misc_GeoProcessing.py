@@ -82,8 +82,8 @@ def clip_dif_ma_raster(meta):
     #clip
     proc.clipRaster('xdem1/dif_5m_20062017_ma.tif', gpd.read_file(meta['GI3']['shp']).geometry, 'dif_5m_20062017_ma_Clip')
 
-clip_dif_ma_raster(meta)
-stop
+# clip_dif_ma_raster(meta)
+
 
 
 

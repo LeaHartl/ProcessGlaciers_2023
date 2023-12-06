@@ -107,31 +107,26 @@ def getgeoms(gdf):
 # get volume change per size class
 def getDZ_perSizeClass(dif, shp, rep, pxsize):
     mG = gpd.read_file(shp)
-    mG = mG.loc[mG.nr != 2125]
     if rep == 'reproject':
         mG = mG.to_crs(31287)
     mG = mG.reset_index()
     
     All = mG
+    G_toosmall = mG.loc[mG.area < 0.1e6]
     G_vsmall = mG.loc[mG.area < 0.5e6]
     G_small = mG.loc[(mG.area >= 0.5e6) & (mG.area < 1e6)]
     G_mid = mG.loc[(mG.area >= 1e6) & (mG.area < 5e6)]
     G_big = mG.loc[(mG.area >= 5e6) & (mG.area < 10e6)]
     G_vbig = mG.loc[(mG.area >= 10e6)]
 
-    dz_class = pd.DataFrame(columns=['dz', 'ar'], index = ['all', 'vsmall', 'small', 'mid', 'big', 'vbig'])
-    classes = [All, G_vsmall, G_small, G_mid, G_big, G_vbig]
+    dz_class = pd.DataFrame(columns=['dz', 'ar'], index = ['all', 'toosmall', 'vsmall', 'small', 'mid', 'big', 'vbig'])
+    classes = [All, G_toosmall, G_vsmall, G_small, G_mid, G_big, G_vbig]
 
     dzList = []
     dz2List = []
     dzmeanList = []
     arList = []
     ar2List = []
-    # for cl in classes: 
-    #     Gs=cl.geometry.unary_union
-    #     dz, ar, pixel_size_y, pixel_size_x = proc.getDZ_ID2(dif, [Gs])
-    #     dzList.append(dz)
-    #     arList.append(ar)
 
     dz = xdem.DEM(dif)
     for cl in classes: 
@@ -163,19 +158,19 @@ def getDZ_perSizeClass(dif, shp, rep, pxsize):
 # count glaciers per size class, get area per size class
 def countGlaciers(mGG):
     mG = gpd.read_file(mGG)
-    # account for different numbering of HEF in GI5 - keep only toteis (0) and HEF ohne Toteis (2125000), remove "HEF" (2125)
-    mG = mG.loc[mG.nr != 2125]
+
     mG = mG.reset_index()
-    G_vsmall = mG.loc[mG.area < 0.5e6]
+    G_toosmall = mG.loc[(mG.area < 0.01e6)]
+    G_vsmall = mG.loc[(mG.area >= 0.01e6) & (mG.area < 0.5e6)]
     G_small = mG.loc[(mG.area >= 0.5e6) & (mG.area < 1e6)]
     G_mid = mG.loc[(mG.area >= 1e6) & (mG.area < 5e6)]
     G_big = mG.loc[(mG.area >= 5e6) & (mG.area < 10e6)]
     G_vbig = mG.loc[(mG.area >= 10e6)]
 
-    df = pd.DataFrame(index=['totNr', 'vsmall', 'small', 'mid', 'big', 'vbig'], columns=['Nr', 'prcNr', 'area', 'areaPrc'])
-    df['Nr'] = [mG.shape[0], G_vsmall.shape[0], G_small.shape[0], G_mid.shape[0], G_big.shape[0], G_vbig.shape[0]]
+    df = pd.DataFrame(index=['totNr', 'toosmall', 'vsmall', 'small', 'mid', 'big', 'vbig'], columns=['Nr', 'prcNr', 'area', 'areaPrc'])
+    df['Nr'] = [mG.shape[0], G_toosmall.shape[0], G_vsmall.shape[0], G_small.shape[0], G_mid.shape[0], G_big.shape[0], G_vbig.shape[0]]
     df['prcNr'] = 100 *df['Nr'] / mG.shape[0]
-    df['area'] = [mG.area.sum(), G_vsmall.area.sum(), G_small.area.sum(), G_mid.area.sum(), G_big.area.sum(), G_vbig.area.sum()]
+    df['area'] = [mG.area.sum(), G_toosmall.area.sum(), G_vsmall.area.sum(), G_small.area.sum(), G_mid.area.sum(), G_big.area.sum(), G_vbig.area.sum()]
     df['areaPrc'] = 100 *df['area'] / mG.area.sum()
 
     #print(df)
@@ -250,14 +245,15 @@ tab['NrChangeG3G5'] = dif3_5['Nr'].astype(int)
 tab['ArChangeG3G5'] = dif3_5['area'] / 1e6
 tab['ArChangeG3G5_perc'] = 100*(dif3_5['area'] / 1e6) / (cG3['area'] / 1e6)
 
-tab[['Nr', 'NrChangeG3G5']] = tab[['Nr', 'NrChangeG3G5']].round(0)
+# tab[['Nr', 'NrChangeG3G5']] = tab[['Nr', 'NrChangeG3G5']].round(1)
+tab = tab.round(1)
 
 # THIS IS THE AREA PART OF THE TABLE IN THE MANUSCRIPT
 tab.T.to_csv('tables/AreaChangesGI3GI5_table4paper.csv')
 print(tab.T)
 
 # get volume change per size class, make table
-# function is rewritten to use xdem but code should be cleaned. minor rounding (?) differences for calculation of sum of dz...
+# function is rewritten to use xdem/gu. minor rounding (?) differences for calculation of sum of dz.
 df_dz_class  = getDZ_perSizeClass(meta['GI5']['f_dif'], meta['GI3']['shp'], 'isfine', 5)
 
 # convert m3 to km3
@@ -294,7 +290,7 @@ tabVol['changerate19691997'] = changerates19961997['mean_dz']
 
 print(tabVol.T)
 tabVol.T.to_csv('tables/VolumeChangesGI3GI5_table4paper.csv')
-#stop
+stop
 
 # get dA and dV for individual glaciers, produce table.
 # get dA for the three time steps.

@@ -16,6 +16,14 @@ import meta as mt
 import xdem 
 import geoutils as gu
 
+
+dat = pd.read_csv('data/volchange_constantrate.csv')
+print(dat)
+fig, ax = plt.subplots(1,1)
+ax.plot(dat.time, dat.volume)
+plt.show()
+stop
+
 # -------------------------------------------
 def getVol(ice, shapes, IDs):
 
@@ -84,27 +92,27 @@ dem2017 = meta['GI5']['f_dem'][1]
 dem2017resampled = '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dem17_10m_resampled_to_ice.tif'
 
 
+# uncomment lines as needed to process the DEMs
+# # subtract the difference from the ice thickness
+# proc.addRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', ice_crs, 'icethickness_2017')
 
-# subtract the difference from the ice thickness
-proc.addRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', ice_crs, 'icethickness_2017')
-
-#clip ice 2017 with GI3 boundary (reprojected to match crs of the ice DEM)
-proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/icethickness_2017.tif', gpdGI3_reproj.geometry, 'ice2017_clip_GI3')
+# #clip ice 2017 with GI3 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/icethickness_2017.tif', gpdGI3_reproj.geometry, 'ice2017_clip_GI3')
 ice_2017 = 'data/ice2017_clip_GI3.tif'
 
-# clip the resampled difference dem with GI3 boundary (reprojected to match crs of the ice DEM)
-proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', gpdGI3_reproj.geometry, 'dif_clip_GI3')
+# # clip the resampled difference dem with GI3 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', gpdGI3_reproj.geometry, 'dif_clip_GI3')
 
-# file produced by function in previous line.
-difdem_clip = 'data/dif_clip_GI3.tif'
+# # file produced by function in previous line.
+# difdem_clip = 'data/dif_clip_GI3.tif'
 
-# divide ice thickness raster by difdem_clip, pixelwise. (--> divide volume by dz/a)
-div_Vol1 = proc.divideVol(ice_2017, difdem_clip, 'division')
+# # divide ice thickness raster by difdem_clip, pixelwise. (--> divide volume by dz/a)
+# div_Vol1 = proc.divideVol(ice_2017, difdem_clip, 'division')
 
-# clip the tif of the divided data dem with GI5 boundary (reprojected to match crs of the ice DEM)
-proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/division.tif', gpdGI5_reproj.geometry, 'division_clip_GI5')
+# # clip the tif of the divided data dem with GI5 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/division.tif', gpdGI5_reproj.geometry, 'division_clip_GI5')
 
-# resulting file
+# # resulting file
 division_GI5 = 'data/division_clip_GI5.tif'
 # srop
 def yearstilmelt(division_GI5):
@@ -125,11 +133,13 @@ def yearstilmelt(division_GI5):
     ax.set_ylim([4800, 700])
     ax.set_title('years until ice gone, per pixel, starting from vol. 2017/18')
     fig.savefig('plots/yearstilmelt.png')
-    
-    # stop
-yearstilmelt(division_GI5)
-# plt.show()
-# stop
+
+
+# uncomment to make the plot
+#yearstilmelt(division_GI5)
+
+
+
 
 def getIceYears():
     #get ice thickness per year per pixel until 2100
@@ -171,12 +181,11 @@ print('bla')
 combined_ice = xr.open_dataset('data/ice_thickness.nc')
 
 
-
+# load to check:
 print(combined_ice)
 print(combined_ice.sel(time=2050))
 ice2050 = combined_ice.sel(time=2050)
 
-# fname2 = 'data/ice_2050.tif'
 
 def writetodisk(yr, combined_ice):
     fname2 = 'data/ice_'+str(yr)+'.tif'
@@ -192,19 +201,21 @@ def writewarped(yr, ice_crs):
     fname2 = 'data/ice_'+str(yr)+'.tif'
     proc.warpDEMS([ice_crs, fname2], 'data/ice_'+str(yr)+'_resamp.tif')
 
-writetodisk(2100, combined_ice)
-writewarped(2100, ice_crs)
-writetodisk(2030, combined_ice)
-writewarped(2030, ice_crs)
-writetodisk(2050, combined_ice)
-writewarped(2050, ice_crs)
-writetodisk(2075, combined_ice)
-writewarped(2075, ice_crs)
+# uncomment as needed
+# writetodisk(2100, combined_ice)
+# writewarped(2100, ice_crs)
+# writetodisk(2030, combined_ice)
+# writewarped(2030, ice_crs)
+# writetodisk(2050, combined_ice)
+# writewarped(2050, ice_crs)
+# writetodisk(2075, combined_ice)
+# writewarped(2075, ice_crs)
 
-d17 = rioxarray.open_rasterio('data/ice_2100_resamp.tif', engine='netcdf4')
-print(d17)
-#d17=d17.reindex(y=list(reversed(d17.y)))
-plt.imshow(d17.squeeze())
+# load and plot to check files:
+# d17 = rioxarray.open_rasterio('data/ice_2100_resamp.tif', engine='netcdf4')
+# print(d17)
+
+# plt.imshow(d17.squeeze())
 # plt.show()
 # stop
 # combined_ice['elev'] = xr.DataArray(NDTI2, dims=('y', 'x'), 
@@ -222,7 +233,13 @@ def forGIF(ice):
 
 total = combined_ice.sum(dim=['x', 'y'])
 print(total)
-
+print(total.to_dataframe())
+# write total volume per year to csv:
+totalVol = total.to_dataframe()
+totalVol = totalVol.rename(columns={"thickness": "volume"})
+totalVol.volume = totalVol.volume*10*10
+totalVol = totalVol[['volume']]
+totalVol.to_csv('data/volchange_constantrate.csv')
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 4))
 ax.plot(total.time, total.thickness*10*10)
