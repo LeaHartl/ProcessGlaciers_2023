@@ -17,12 +17,12 @@ import xdem
 import geoutils as gu
 
 
-dat = pd.read_csv('data/volchange_constantrate.csv')
-print(dat)
-fig, ax = plt.subplots(1,1)
-ax.plot(dat.time, dat.volume)
-plt.show()
-stop
+# dat = pd.read_csv('data/volchange_constantrate_new.csv')
+# print(dat)
+# fig, ax = plt.subplots(1,1)
+# ax.plot(dat.time, dat.volume)
+# plt.show()
+# stop
 
 # -------------------------------------------
 def getVol(ice, shapes, IDs):
@@ -78,43 +78,59 @@ gpdGI5_reproj = gpdGI5.to_crs(31287)
 
 ## see VolData.py in /v2 if tif needs to be reproduced
 
-difdem = meta['GI5']['f_dif_ma']
+
+difdem = meta['GI5']['f_dif']
+
+difdem_ma = meta['GI5']['f_dif_ma']
+
 dem2017 = meta['GI5']['f_dem'][1]
 
 
-# resample difdem to match clipped ice raster
+# # # resample difdem to match clipped ice raster
 # proc.warpDEMS([ice_crs, difdem], 'data/difdem_10m.tif')
 
-# # resample dem to match clipped ice raster
+# # # # resample difdem_ma to match clipped ice raster
+# proc.warpDEMS([ice_crs, difdem_ma], 'data/difdem_10m_ma.tif')
+
+# # # # # resample dem to match clipped ice raster
 # proc.warpDEMS([ice_crs, dem2017], 'data/dem17_10m_resampled_to_ice.tif')
 
-#stop
-dem2017resampled = '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dem17_10m_resampled_to_ice.tif'
+
+#dem2017resampled = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/dem17_10m_resampled_to_ice.tif'
 
 
 # uncomment lines as needed to process the DEMs
 # # subtract the difference from the ice thickness
-# proc.addRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', ice_crs, 'icethickness_2017')
+# proc.addRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/difdem_10m.tif', ice_crs, 'icethickness_2017')
 
-# #clip ice 2017 with GI3 boundary (reprojected to match crs of the ice DEM)
-# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/icethickness_2017.tif', gpdGI3_reproj.geometry, 'ice2017_clip_GI3')
+# # #clip ice 2017 with GI3 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/icethickness_2017.tif', gpdGI3_reproj.geometry, 'ice2017_clip_GI3')
 ice_2017 = 'data/ice2017_clip_GI3.tif'
 
-# # clip the resampled difference dem with GI3 boundary (reprojected to match crs of the ice DEM)
-# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/difdem_10m.tif', gpdGI3_reproj.geometry, 'dif_clip_GI3')
+# # #clip ice 2006 with GI3 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster(ice_crs, gpdGI3_reproj.geometry, 'ice2006_clip_GI3')
 
-# # file produced by function in previous line.
-# difdem_clip = 'data/dif_clip_GI3.tif'
+ice_2006 = 'data/ice2006_clip_GI3.tif'
+
+# # clip the resampled difference dem (total AND meter/year version) with GI3 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/difdem_10m_ma.tif', gpdGI3_reproj.geometry, 'dif_ma_clip_GI3')
+
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/difdem_10m.tif', gpdGI3_reproj.geometry, 'dif_clip_GI3')
+
+# # files produced by function in previous line.
+difdem_ma_clip = 'data/dif_ma_clip_GI3.tif'
+difdem_clip = 'data/dif_clip_GI3.tif'
 
 # # divide ice thickness raster by difdem_clip, pixelwise. (--> divide volume by dz/a)
-# div_Vol1 = proc.divideVol(ice_2017, difdem_clip, 'division')
+# div_Vol1 = proc.divideVol(ice_2017, difdem_ma_clip, 'division')
 
-# # clip the tif of the divided data dem with GI5 boundary (reprojected to match crs of the ice DEM)
-# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/division.tif', gpdGI5_reproj.geometry, 'division_clip_GI5')
+# # # clip the tif of the divided data dem with GI5 boundary (reprojected to match crs of the ice DEM)
+# proc.clipRaster('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/division.tif', gpdGI5_reproj.geometry, 'division_clip_GI5')
 
 # # resulting file
 division_GI5 = 'data/division_clip_GI5.tif'
-# srop
+
+
 def yearstilmelt(division_GI5):
     # resulting file
     # division_GI5 = 'data/division_clip_GI5.tif'
@@ -136,8 +152,9 @@ def yearstilmelt(division_GI5):
 
 
 # uncomment to make the plot
-#yearstilmelt(division_GI5)
-
+# yearstilmelt(division_GI5)
+# plt.show()
+# stop
 
 
 
@@ -145,23 +162,26 @@ def getIceYears():
     #get ice thickness per year per pixel until 2100
     #write to nc file - reload older file unless something changed to save time!
     ice_ar = rioxarray.open_rasterio(ice_2017)
-    # print(ice_ar)
+    # ice_ar = rioxarray.open_rasterio(ice_2006)
+    print(ice_ar)
     ice_ar = ice_ar.drop_vars('band')
-    dif_ice = rioxarray.open_rasterio(difdem_clip)
-    dif_a = dif_ice #/ (2017-2006)
-
+    dif_ice = rioxarray.open_rasterio(difdem_ma_clip) # use m/a file here!
+    dif_a = dif_ice ###/ (2017-2006)
+    # y1 = 2017
+    y1 = 2017
     ice_xr1 = ice_ar.to_dataset(name = 'thickness')
-    ice_xr = ice_xr1.expand_dims(yrs=np.arange(2017, 2101))
+    # ice_xr = ice_xr1.expand_dims(yrs=np.arange(2017, 2101))
+    ice_xr = ice_xr1.expand_dims(yrs=np.arange(y1, 2101))
 
     forconcat = []
-    for i, y in enumerate(np.arange(2017, 2101)):
+    for i, y in enumerate(np.arange(y1, 2101)):
 
-        ice = ice_xr.thickness.sel(yrs=2017).values + (dif_a*i)
+        ice = ice_xr.thickness.sel(yrs=y1).values + (dif_a*i)
         # set negative values to np.nan 
         ice = ice.where(ice > 1)
         forconcat.append(ice)
 
-    combined = xr.concat(forconcat, pd.Index(np.arange(2017, 2101), name='time'))
+    combined = xr.concat(forconcat, pd.Index(np.arange(y1, 2101), name='time'))
     combined_ice = combined.to_dataset(name='thickness')
 
     combined_ice = combined_ice.drop_vars('band')
@@ -172,13 +192,14 @@ def getIceYears():
     combined_ice.rio.write_crs("epsg:31287", inplace=True)
     # ds.transpose()
     #combined_ice = combined_ice.drop_dims('band')
-    combined_ice.to_netcdf('data/ice_thickness.nc')
+    combined_ice.to_netcdf('data/ice_thickness_new.nc')
 
 # uncomment if the nc file needs to be reproduced (slow). otherwise load existing version.
-#getIceYears()
+# getIceYears()
 print('bla')
 #stop
-combined_ice = xr.open_dataset('data/ice_thickness.nc')
+# combined_ice = xr.open_dataset('data/ice_thickness.nc')
+combined_ice = xr.open_dataset('data/ice_thickness_new.nc')
 
 
 # load to check:
@@ -201,7 +222,7 @@ def writewarped(yr, ice_crs):
     fname2 = 'data/ice_'+str(yr)+'.tif'
     proc.warpDEMS([ice_crs, fname2], 'data/ice_'+str(yr)+'_resamp.tif')
 
-# uncomment as needed
+# # uncomment as needed
 # writetodisk(2100, combined_ice)
 # writewarped(2100, ice_crs)
 # writetodisk(2030, combined_ice)
@@ -211,7 +232,7 @@ def writewarped(yr, ice_crs):
 # writetodisk(2075, combined_ice)
 # writewarped(2075, ice_crs)
 
-# load and plot to check files:
+# # load and plot to check files:
 # d17 = rioxarray.open_rasterio('data/ice_2100_resamp.tif', engine='netcdf4')
 # print(d17)
 
@@ -239,7 +260,7 @@ totalVol = total.to_dataframe()
 totalVol = totalVol.rename(columns={"thickness": "volume"})
 totalVol.volume = totalVol.volume*10*10
 totalVol = totalVol[['volume']]
-totalVol.to_csv('data/volchange_constantrate.csv')
+totalVol.to_csv('data/volchange_constantrate_new.csv')
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 4))
 ax.plot(total.time, total.thickness*10*10)
