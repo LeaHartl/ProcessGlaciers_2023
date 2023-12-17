@@ -17,12 +17,15 @@ import xdem
 import geoutils as gu
 
 
-# dat = pd.read_csv('data/volchange_constantrate_new.csv')
-# print(dat)
-# fig, ax = plt.subplots(1,1)
-# ax.plot(dat.time, dat.volume)
-# plt.show()
-# stop
+dat = pd.read_csv('data/volchange_constantrate_new.csv')
+datAr =pd.read_csv('data/areachange_constantrate.csv')
+print(datAr)
+fig, ax = plt.subplots(2,1)
+ax = ax.flatten()
+ax[0].plot(dat.time, dat.volume/1e9)
+ax[1].plot(datAr.time, datAr.area/1e6)
+plt.show()
+stop
 
 # -------------------------------------------
 def getVol(ice, shapes, IDs):
@@ -261,6 +264,18 @@ totalVol = totalVol.rename(columns={"thickness": "volume"})
 totalVol.volume = totalVol.volume*10*10
 totalVol = totalVol[['volume']]
 totalVol.to_csv('data/volchange_constantrate_new.csv')
+
+
+totalArea = combined_ice.count(dim=['x', 'y'])
+print(totalArea)
+print(totalArea.to_dataframe())
+# write total volume per year to csv:
+totalArea = totalArea.to_dataframe()
+totalArea = totalArea.rename(columns={"thickness": "area"})
+totalArea.area = totalArea.area*10*10
+totalArea = totalArea[['area']]
+totalArea.to_csv('data/areachange_constantrate.csv')
+
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 4))
 ax.plot(total.time, total.thickness*10*10)
