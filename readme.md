@@ -48,6 +48,14 @@ Sulzenauferner_clip.py:
 * Prints glaciers that are gone in GI5 with area, nr, name
 
 ---
+---   
+Hochjochferner_clip.py:   
+* deals with the issue of missing DEM in Italian section of HJF (boundary was mapped with orthophoto but no DEM available in Italy)
+* HJF boundary clipped in Qgis with line along a ridge in the terrain (imo this is the most logical way to do this, there is no ideal solution)  
+* using new, clipped boundaries, volume and area change is computed and exported to table (this is needed for the OGGM runs)
+* also outputs a plot showing the different boundaries.  
+---   
+
 Misc_GeoProcessing.py [stuff that didn't fit anywhere else]
 * Make raster of flights years (2017 and 2018 per pixel), uses that to make dif dem in m/a for 2016-2017/18 period.
 * clip dif_ma with gi3 boundary (didn't know where to put this, should move to some better place.)
@@ -64,10 +72,13 @@ set file paths in meta.py and import this as needed (--> avoid setting paths in 
 
 ---
 AreaVolChange.py:   
-* Generates area and volume change for individual glaciers and all time steps, writes to csv.   
+* Generates area and volume change for individual glaciers and all time steps, writes to csv. USED IN OGGM RUNS!  
 * gets list of id numbers of "gone glaciers" 
 
 ---
+
+
+
 
 VolData_absolute.py : 
 * deal with ice thickness raster and prduce various derivatives (ice thickness raster for 2017 based on dif dem 2006 -2017 and absolute ice thickness 2006, clipped rasters, ...)

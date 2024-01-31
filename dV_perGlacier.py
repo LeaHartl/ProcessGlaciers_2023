@@ -112,7 +112,7 @@ def getDZ_perSizeClass(dif, shp, rep, pxsize):
     mG = mG.reset_index()
     
     All = mG
-    G_toosmall = mG.loc[mG.area < 0.1e6]
+    G_toosmall = mG.loc[mG.area < 0.01e6]
     G_vsmall = mG.loc[mG.area < 0.5e6]
     G_small = mG.loc[(mG.area >= 0.5e6) & (mG.area < 1e6)]
     G_mid = mG.loc[(mG.area >= 1e6) & (mG.area < 5e6)]

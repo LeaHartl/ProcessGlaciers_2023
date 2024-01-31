@@ -17,6 +17,11 @@ GI2 = meta['GI2']['shp']
 GI3 = meta['GI3']['shp']
 GI5 = meta['GI5']['shp']
 
+outlinesGI5All = gpd.read_file(GI5)
+outlinesGI5All['area'] = outlinesGI5All.geometry.area
+print(outlinesGI5All.area.sum())
+
+
 # difdemGI2 = meta['GI2']['f_dif']
 # difdemGI3 = meta['GI3']['f_dif']
 # difdemGI5 = meta['GI5']['f_dif']
@@ -50,6 +55,20 @@ HJGI5 = gpd.read_file(HochJoch_clipGI5).explode()
 HJGI5 = HJGI5.explode()
 HJGI5 = HJGI5.dissolve(by='nr')
 
+
+
+outlinesGI5All_new = outlinesGI5All.copy()
+
+outlinesGI5All_new.geometry[outlinesGI5All_new.nr == 2121] = HJGI5.geometry
+outlinesGI5All_new['area'] = outlinesGI5All_new.geometry.area
+print(outlinesGI5All_new.area.sum())
+
+HJAll = outlinesGI5All[outlinesGI5All.nr == 2121]
+HJGI5['area']=HJGI5.geometry.area
+print(HJAll)
+print(HJGI5)
+
+stop
 HJGI3_reproj = HJGI3.to_crs(31287)
 ice_crs = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/GI3_ice_thickness_clip_crs.tif'        
 

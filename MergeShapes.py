@@ -46,8 +46,12 @@ Stb = {
 
 # combine Stubai and Otztal shapefiles & account for HEF ID number issue:
 def combine(stbGPD, otzGPD, GI):
-    stbGPD = gpd.read_file(Stb[GI]['shp'])
-    otzGPD = gpd.read_file(Otz[GI]['shp'])
+    if GI != 'LIA':
+        stbGPD = gpd.read_file(Stb[GI]['shp'])
+        otzGPD = gpd.read_file(Otz[GI]['shp'])
+    else:
+        stbGPD = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/LIAoutlines/Stubaier_Alpen.shp', encoding='latin1')
+        otzGPD = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/LIAoutlines/Oetztaler_Alpen.shp', encoding='latin1')
 
     if otzGPD.crs != 'epsg:31254':
         otzGPD = otzGPD.to_crs('epsg:31254')
@@ -84,6 +88,7 @@ def combine(stbGPD, otzGPD, GI):
 
     # print to check:
     print(GI)
+    print(merged.head())
     print(merged.loc[merged.nr == 2125000])
     print(merged.loc[merged.nr == 0])
     print(merged.loc[merged.nr == 2125])
@@ -92,6 +97,9 @@ def combine(stbGPD, otzGPD, GI):
     return(merged)
 
 
+
+mGLia = combine(Stb, Otz, 'LIA')
+stop
 mG1 = combine(Stb, Otz, 'GI1')
 # print(mG1.shape)
 mG2 = combine(Stb, Otz, 'GI2')

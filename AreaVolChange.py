@@ -136,11 +136,14 @@ dfdA = get_dA2(dfarea)
 dfdA.to_csv('tables/areachange.csv')
 
 #print stuff to check it looks as intended:
-print(dfdA.head())
-print(dfarea.head())
-print(gone)
+# print(dfdA.head())
+# print(dfarea.head())
+# print(dfarea.shape)
+print(dfarea.count())
+print(dfarea.sum())
+# print(gone)
 
-
+stop
 #------Volume part ------
 # get volume change for all time steps and write to csv)
 # get file paths:

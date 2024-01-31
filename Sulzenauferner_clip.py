@@ -1,21 +1,36 @@
-
 import rasterio
 from rasterio.plot import show
 import numpy as np
 import pandas as pd
-# import os
-# os.environ['USE_PYGEOS'] = '0'
+from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
+from matplotlib.patches import Rectangle
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import geoutils as gu
 import xdem
 
+import meta as mt
+
+
+meta = mt.meta
+# read shapefile of glacier boundary 2006
+GI3 = meta['GI3']['shp']
+# GI3 = meta.GI3_y
+gpdGI3 = gpd.read_file(GI3)
+
+# read shapefile of glacier boundary 2017
+GI5 = meta['GI5']['shp']
+gpdGI5 = gpd.read_file(GI5)
+# GI5 = meta.GI5_y
+# gpdGI5 = gpd.read_file(GI5)
+
 
 dh_2006 = '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/xdem1/dif_5m_20062017.tif'
 fn2017_5al = '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/proc_dems/aligned_resampled_2_5m_tir1718.tif'
 
-GI3_y = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/mergedGI3_withYEAR_3.shp'
-GI5_y = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/mergedGI5_withYEAR_3.shp'
+GI3_y =  mt.GI3_y#'/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/mergedGI3_withYEAR_3.shp'
+GI5_y =  mt.GI5_y#'/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/mergedGI5_withYEAR_3.shp'
 GI5_y_gpd = gpd.read_file(GI5_y)
 # GI5_2_gpd = gpd.read_file('mergedGI5_2.shp')
 GI5_y_gpd.YEAR=GI5_y_gpd.YEAR.astype(float)
@@ -40,10 +55,10 @@ fl2018 = flight_years.loc[flight_years.YEAR == '2018']
 fl2017 = flight_years.loc[flight_years.YEAR == '2017']
 
 sulz_clip2018 = gpd.clip(sulz_gu, fl2018)
-sulz_clip2018.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/Sulzenauferner_2018_clip.shp')
+#sulz_clip2018.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/Sulzenauferner_2018_clip.shp')
 
 sulz_clip2017 = gpd.clip(sulz_gu, fl2017)
-sulz_clip2017.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/Sulzenauferner_2017_clip.shp')
+#sulz_clip2017.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessFiles2023/mergedOutlines/Sulzenauferner_2017_clip.shp')
 
 outlines_clip2018 = gpd.clip(GI5_y_gpd, fl2018)
 outlines_clip2017 = gpd.clip(GI5_y_gpd, fl2017)
@@ -202,6 +217,7 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
 
 
     raster = rasterio.open('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/proc_dems/aligned_resampled_2_5m_tir1718.tif')
+
     print(raster.shape)
     raster1 = np.reshape(raster.read(), (raster.read().shape[0]*raster.read().shape[1], raster.read().shape[2]))
     outlines = gu.Vector(GI5_y)
@@ -218,21 +234,31 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     formarker = outlines.ds[outlines.ds.nr == 2152].centroid
     print(formarker)
 
+    RGI = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/11_rgi60_CentralEurope/11_rgi60_CentralEurope.shp')
+    RGI.to_crs(outlines.ds.crs, inplace=True)
+
+    cookRoi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/cook_area/cook_area.shp')
+    cookRoi.to_crs(outlines.ds.crs, inplace=True)
+
     fig, ax = plt.subplots(1, 1, figsize=(10, 8))
     base1 = plt.imshow(raster1, cmap='cividis', vmin=1500, vmax=3400)
     rasterio.plot.show(raster, ax=ax, cmap='cividis', vmin=1500, vmax=3400)
     #flight_years.plot(ax = ax, alpha=0.7, column='JAHR', label='flight years')
 
-    outlines_clip2017.plot(ax = ax, alpha=1, edgecolor="k", facecolor='none', label='2017')
-    outlines_clip2018.plot(ax = ax, alpha=1, edgecolor="red", facecolor='none', label='2018')
+    outlines_clip2017.plot(ax = ax, alpha=1, edgecolor="k", facecolor='none', label='2017', zorder=10)
+    outlines_clip2018.plot(ax = ax, alpha=1, edgecolor="red", facecolor='none', label='2018', zorder=10)
+    outlines3.ds.plot(ax = ax, edgecolor="grey", facecolor='none', linestyle='--', zorder=8)
+
+    RGI.plot(ax = ax, alpha=1, linewidth=0.5, edgecolor="lightblue", facecolor='none', label='RGI', zorder=5)
+    cookRoi.plot(ax = ax, alpha=1, edgecolor="blue", facecolor='none', label='region of interest')
     # outlines3.ds.plot(ax = ax, edgecolor="grey", facecolor='none', linestyle='--')
     # countries.plot(ax = ax, alpha=0.7, edgecolor='k', facecolor='none', linestyle='--', linewidth=2)
-
+    #countries.plot(ax = ax, alpha=1, edgecolor="k", facecolor='none')
 
     #    sulz_clip2018.plot(ax = ax, alpha=0.7, color="red", label='2018')
     # sulz_clip2017.plot(ax = ax, alpha=0.7, color="green", label='2017')
     # cb = plt.colorbar(base1, ax=ax, shrink=0.6, location='bottom')
-    cb = plt.colorbar(base1, fraction=0.0346, pad=0.04, location='bottom')
+    cb = plt.colorbar(base1, fraction=0.0346, pad=0.08, location='bottom')
     cb.set_label('Elevation (m)', fontsize=10)
 
     ax.set_xlim([20000, 75000])
@@ -246,28 +272,54 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     #rasterio.plot.show(raster, ax=axins, cmap='cividis')
     sulz_clip2017.plot(ax = axins, alpha=0.5, edgecolor="k", facecolor='k', label='2017', hatch='//')
     sulz_clip2018.plot(ax = axins, alpha=0.5, edgecolor="k", facecolor='k', label='2018', hatch='+')
-    outlines3.ds.plot(ax = axins, edgecolor="grey", facecolor='none', linestyle='--')
-    outlines_clip2017.plot(ax = axins, alpha=1, edgecolor="k", facecolor='none')#, categorical=True, legend=True)
-    outlines_clip2018.plot(ax = axins, alpha=1, edgecolor="r", facecolor='none')#, categorical=True, legend=True)
-    
+    outlines3.ds.plot(ax = axins, edgecolor="grey", facecolor='none', linestyle='--', zorder=11)
+    outlines_clip2017.plot(ax = axins, alpha=1, edgecolor="k", facecolor='none',zorder=12)#, categorical=True, legend=True)
+    outlines_clip2018.plot(ax = axins, alpha=1, edgecolor="r", facecolor='none',zorder=12)#, categorical=True, legend=True)
+    RGI.plot(ax = axins, alpha=1, edgecolor="lightblue", facecolor='none', label='RGI', zorder=5)
+
+
+
     axins.set_xlim([61400, 65200])
     axins.set_ylim([203000, 206200])
     # axins.set_xticklabels([])
     axins.set_yticklabels([])
 
 
-    axins2 = ax.inset_axes([-0.02, 0.7, 0.4, 0.5])
+    axins2 = ax.inset_axes([-0.1, 0.7, 0.4, 0.6])
 
     #rasterio.plot.show(raster, ax=axins, cmap='cividis')
     countries.plot(ax = axins2, alpha=1, edgecolor="k", facecolor='none')#, categorical=True, legend=True)
-    formarker.plot(ax = axins2, marker='*', color='blue', markersize=200)
+    #formarker.plot(ax = axins2, marker='*', color='blue', markersize=200)
+    RGI.plot(ax = axins2, alpha=1, linewidth=0.5, edgecolor="lightblue", facecolor='lightblue', label='RGI', zorder=5)
+    # ax.set_xlim([20000, 75000])
+    # ax.set_ylim([179000, 229000])
+
+
+    axins2.add_patch(Rectangle((20000, 179000), 75000-20000, 229000-179000, facecolor="grey"))
     axins2.set_xticklabels([])
     axins2.set_yticklabels([])
     axins2.set_xticks([])
     axins2.set_yticks([])
     axins2.set_xlim([500, 510000])
     axins2.set_ylim([120000, 450000])
-    # axins.legend()
+    axins2.annotate("Austria",
+            xy=(300000, 280000), xycoords='data',
+            #xytext=(x2, y2), textcoords='data',
+            ha="center", va="center")
+
+    
+    
+
+    lnGI17 = Line2D([0], [0], linestyle = '-', label='Updated outlines (DEM 2017)', color='k')
+    lnGI18 = Line2D([0], [0], linestyle = '-', label='Updated outlines (DEM 2018)', color='r')
+    lnGI3 = Line2D([0], [0], linestyle = '--', label='GI3 (2006)', color='grey')
+    lnRGI = Line2D([0], [0], linestyle = '-', label='RGI', color='LightBlue')
+    lnROI = Line2D([0], [0], linestyle = '-', label='Region of interest', color='blue')
+    
+    handles = [lnGI17, lnGI18, lnGI3, lnRGI, lnROI]
+
+    # add manual symbols to auto legend
+    fig.legend(handles=handles, loc='upper right', bbox_to_anchor=(0.9, 0.95), ncol=1)
 
     ax.indicate_inset_zoom(axins, edgecolor="black")
     plt.savefig('plots/ROI.png', bbox_inches='tight', dpi=300)
