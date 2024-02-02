@@ -107,6 +107,17 @@ makePlots.py :
 * makes compound figure relative change (aspect, slope, cumulative vol/area)  
 * makes hypsometry plot and fig with scatter subplots for constant change rate scenario.  
 
+
+
+Area_compareDatasets.py:   
+* load, clip and further process glacier outlines in the ROI to compare the different available data sets
+
+Vol_compareDatasets.py:   
+* load, clip and further process volume rasters to compare the different available data sets
+
+
+
+
 ---
 Folders: 
 
