@@ -11,4 +11,6 @@ figs/
 __pycache__/helpers.cpython-39.pyc
 __pycache__/meta.cpython-39.pyc
 *.txt
+*.csv
+*.png
 **/.DS_Store

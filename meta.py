@@ -95,9 +95,13 @@ ice2050_ar = pd.read_csv(fldr+'flHoAltAr_50_ice_proj2050.csv', index_col=0)
 ice2075_ar = pd.read_csv(fldr+'flHoAltAr_50_ice_proj2075.csv', index_col=0)
 ice2100_ar = pd.read_csv(fldr+'flHoAltAr_50_ice_proj2100.csv', index_col=0)
 
-icedata_sum = [ice2006, ice2017, ice2030, ice2050, ice2075, ice2100]
-icedata_mean = [ice2006_mn, ice2017_mn, ice2030_mn, ice2050_mn, ice2075_mn, ice2100_mn]
-icedata_median = [ice2006_md, ice2017_md, ice2030_md, ice2050_md, ice2075_md, ice2100_md]
-icedata_ar = [ice2006_ar, ice2017_ar, ice2030_ar, ice2050_ar, ice2075_ar, ice2100_ar]
+# icedata_sum = [ice2006, ice2017, ice2030, ice2050, ice2075, ice2100]
+# icedata_mean = [ice2006_mn, ice2017_mn, ice2030_mn, ice2050_mn, ice2075_mn, ice2100_mn]
+# icedata_median = [ice2006_md, ice2017_md, ice2030_md, ice2050_md, ice2075_md, ice2100_md]
+# icedata_ar = [ice2006_ar, ice2017_ar, ice2030_ar, ice2050_ar, ice2075_ar, ice2100_ar]
+icedata_sum = [ice2006, ice2017, ice2030, ice2050, ice2100]
+icedata_mean = [ice2006_mn, ice2017_mn, ice2030_mn, ice2050_mn, ice2100_mn]
+icedata_median = [ice2006_md, ice2017_md, ice2030_md, ice2050_md, ice2100_md]
+icedata_ar = [ice2006_ar, ice2017_ar, ice2030_ar, ice2050_ar, ice2100_ar]
 
 

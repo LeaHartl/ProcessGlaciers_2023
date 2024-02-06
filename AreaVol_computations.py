@@ -24,6 +24,9 @@ df_dV97 = pd.read_csv('tables/volumechange1969_1997.csv', index_col=0)
 df_dV06 = pd.read_csv('tables/volumechange1997_2006.csv', index_col=0)
 df_dV17 = pd.read_csv('tables/volumechange2006_2017.csv', index_col=0)
 
+
+
+
 # merge area data:
 merged = pd.concat([df_A[['area_1997', 'area_2006', 'area_201718']], df_dA[['201718-06']]], axis=1, join="inner")
 # remove glaciers that have nan area value in 201718

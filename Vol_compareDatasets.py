@@ -124,29 +124,81 @@ clippedRGI.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data
 # ice_millan = xdem.DEM(millan)
 # get_sum(ice_millan, cookRoi, 50, 50)
 
-# Hugonnet vol change clipped with ROI and RGI 
-hugonnet = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/volchangeHugonnet2000_2020.tif'
-volchange_hugonnet = xdem.DEM(hugonnet)
+# # Hugonnet vol change clipped with ROI and RGI 
+# hugonnet = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/volchangeHugonnet2000_2020.tif'
+# volchange_hugonnet = xdem.DEM(hugonnet)
 # get_sum(volchange_hugonnet, clippedRGI, 100, 100)
 
 
-dz1969_97 = xdem.DEM(meta['GI2']['f_dif_ma'])
-gg69 = gpd.read_file(meta['GI1']['shp'])
+# dz1969_97 = xdem.DEM(meta['GI2']['f_dif_ma'])
+# gg69 = gpd.read_file(meta['GI1']['shp'])
 
-dz1997_06 = xdem.DEM(meta['GI3']['f_dif_ma'])
-gg97 = gpd.read_file(meta['GI2']['shp'])
+# dz1997_06 = xdem.DEM(meta['GI3']['f_dif_ma'])
+# gg97 = gpd.read_file(meta['GI2']['shp'])
 
-dz2006_17 = xdem.DEM(meta['GI5']['f_dif_ma'])
-gg06 = gpd.read_file(meta['GI3']['shp'])
+# dz2006_17 = xdem.DEM(meta['GI5']['f_dif_ma'])
+# gg06 = gpd.read_file(meta['GI3']['shp'])
 
 # get_sum(dz1969_97, gg69, 5, 5)
 # get_sum(dz1997_06, gg97, 5, 5)
 # get_sum(dz2006_17, gg06, 5, 5)
 
+# stop
+# computeNMAD(gg69, dz1969_97)
+# computeNMAD(gg69, dz1997_06)
+# computeNMAD(gg69, dz2006_17)
+# computeNMAD(clippedRGI, volchange_hugonnet)
 
-computeNMAD(gg69, dz1969_97)
-computeNMAD(gg69, dz1997_06)
-computeNMAD(gg69, dz2006_17)
-computeNMAD(clippedRGI, volchange_hugonnet)
+
+# ---
+# errors
+# load csv files:
+er20062017 = pd.read_csv('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/outputXdem/20062017_error_dataframe.csv', index_col=0)
+er19972006 = pd.read_csv('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/outputXdem/19972006_error_dataframe.csv', index_col=0)
+
+er20062017 = er20062017[['dh', 'dh_err']]
+
+area = pd.read_csv('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/tables/glacierarea.csv')
+area.index = area.nr
+area20062017 = area['area_201718']
+
+def getVolUnc(area, err):
+    # area.columns = ['gl_area']
+    area.rename("gl_area", inplace=True)
+    print(area)
+    err_df = pd.concat([err, area], axis=1)
+
+    err_df['area_unc'] = np.nan
+    err_df['area_unc'].loc[err_df.gl_area<1e6] = err_df.gl_area*0.05
+    err_df['area_unc'].loc[err_df.gl_area>=1e6] = err_df.gl_area*0.015
+    err_df['volchange'] = (err_df.gl_area * err_df.dh)
+
+    err_df['vol_unc'] = np.sqrt((err_df['dh_err']*err_df['gl_area'])**2 + (err_df['area_unc']*err_df['dh'])**2)
+    return(err_df)
+
+
+err_df20062017 = getVolUnc(area['area_2006'], er20062017[['dh', 'dh_err']])
+err_df19972006 = getVolUnc(area['area_1997'], er20062017[['dh', 'dh_err']])
+
+
+print(err_df19972006)
+# print(err_df19972006.sum())
+print(err_df19972006.sum()/1e9)
+
+
+
+print(err_df20062017)
+# print(err_df20062017.sum())
+print(err_df20062017.sum()/1e9)
+
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+# ax.scatter(err_df20062017['gl_area'], err_df20062017['gl_area']*err_df20062017['dh'])
+ax.scatter(err_df20062017['gl_area'], err_df20062017['vol_unc'], c='k')
+ax.scatter(err_df19972006['gl_area'], err_df19972006['vol_unc'], c='grey')
+# ax.scatter(err_df2006/2017['gl_area'], err_df20062017['gl_area']*err_df20062017['dh'])
+
+plt.show()
+
 
 

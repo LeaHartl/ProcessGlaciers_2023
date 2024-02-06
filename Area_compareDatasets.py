@@ -80,11 +80,70 @@ gi4_in_roi = gpd.clip(gi4, cookRoi)
 # load GI LIA:
 lia = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/mergedOutlines/mergedLIA_3.shp')
 
-# load shapes as geodataframes and pass to get_A function:
-dfNew = get_A(gpd.read_file(GI1), gpd.read_file(GI2), gpd.read_file(GI3), gpd.read_file(GI5), lia, rgi_in_roi, gi4_in_roi)
+# load shapes as geodataframes and pass to the "get_A" function, output is a summary data frame:
+# dfNew = get_A(gpd.read_file(GI1), gpd.read_file(GI2), gpd.read_file(GI3), gpd.read_file(GI5), lia, rgi_in_roi, gi4_in_roi)
 
-dfNew['ar_km2'] =dfNew['area'] / 1e6
+# dfNew['ar_km2'] =dfNew['area'] / 1e6
 
-dfNew.to_csv('tables/compare_area.csv')
-print(dfNew)
+# dfNew.to_csv('tables/compare_area.csv')
+# print(dfNew)
+
+#--- Area uncertainties by size class for the regional inventories:
+def SizeClassesUNC(df):
+    df['area'] = df.geometry.area
+    All = df.copy()
+    G_toosmall = df.loc[df['area'] < 0.01e6]
+    G_vsmall = df.loc[df['area'] < 0.5e6]
+    G_small = df.loc[(df['area'] >= 0.5e6) & (df['area'] < 1e6)]
+    G_mid = df.loc[(df['area'] >= 1e6) & (df['area'] < 5e6)]
+    G_big = df.loc[(df['area'] >= 5e6) & (df['area'] < 10e6)]
+    G_vbig = df.loc[(df['area'] >= 10e6)]
+
+    df = pd.DataFrame(index=['all', 'vsmall', 'small', 'mid', 'big', 'vbig'], columns=['area', 'Uncertainty'])
+
+    df['area'] = [All['area'].sum(), G_vsmall['area'].sum(), G_small['area'].sum(), G_mid['area'].sum(), G_big['area'].sum(), G_vbig['area'].sum()]
+    df['Uncertainty'] = df['area']*0.015
+    #ädf.loc['toosmall', 'Uncertainty'] = df.loc['toosmall', 'area']*0.05
+    df.loc['vsmall', 'Uncertainty'] = df.loc['vsmall', 'area']*0.05
+    df.loc['all', 'Uncertainty'] = np.nan
+    df.loc['all', 'Uncertainty'] = df['Uncertainty'].sum()
+
+
+    print(df)
+    return(df)
+    # df['Nr'] = [merged.shape[0], G_toosmall.shape[0], G_vsmall.shape[0], G_small.shape[0], G_mid.shape[0], G_big.shape[0], G_vbig.shape[0]]
+    # df['prcNr'] = 100 *df['Nr'] / merged.shape[0]
+    # if colname2 ==colname:
+    #     df['abs_val'] = [merged[colname2].sum(), G_toosmall[colname2].sum(), G_vsmall[colname2].sum(), G_small[colname2].sum(), G_mid[colname2].sum(), G_big[colname2].sum(), G_vbig[colname2].sum()]
+    #     df['percentage'] = 100 *df['abs_val'] / merged[colname2].sum()
+    #     return(df)
+    
+    # else:
+    #     df['abs_val'] = [merged[colname2].sum(), G_toosmall[colname2].sum(), G_vsmall[colname2].sum(), G_small[colname2].sum(), G_mid[colname2].sum(), G_big[colname2].sum(), G_vbig[colname2].sum()]
+    
+    #     # df['abs_val'] = [merged[colname2].mean(), G_toosmall[colname2].mean(), G_vsmall[colname2].mean(), G_small[colname2].mean(), G_mid[colname2].mean(), G_big[colname2].mean(), G_vbig[colname2].mean()]
+    #     return(df[['Nr', 'abs_val']])
+
+# SizeClassesUNC(lia)
+# SizeClassesUNC(gpd.read_file(GI1))
+df1997 = SizeClassesUNC(gpd.read_file(GI2))
+df2006 = SizeClassesUNC(gpd.read_file(GI3))
+df2017 = SizeClassesUNC(gpd.read_file(GI5))
+
+df1997.rename(columns={"area": "area1997", "Uncertainty": "Unc1997"}, inplace=True)
+df2006.rename(columns={"area": "area2006", "Uncertainty": "Unc2006"}, inplace=True)
+df2017.rename(columns={"area": "area2017", "Uncertainty": "Unc2017"}, inplace=True)
+
+changeDF = pd.concat([df1997, df2006, df2017], axis=1)
+changeDF['change20062017']=changeDF['area2017']-changeDF['area2006']
+changeDF['changeUnc20062017']= np.sqrt(changeDF['Unc2006']**2 + changeDF['Unc2017']**2)
+changeDF['Unc2006km2'] = changeDF['Unc2006'] /1e6
+changeDF['Unc2017km2'] = changeDF['Unc2017'] /1e6
+changeDF['change_KM2'] = changeDF['change20062017'] /1e6
+changeDF['changeUnc_KM2'] = changeDF['changeUnc20062017'] /1e6
+
+changeDF[['Unc2006km2', 'Unc2017km2', 'change_KM2', 'changeUnc_KM2']] = changeDF[['Unc2006km2', 'Unc2017km2', 'change_KM2', 'changeUnc_KM2']].round(decimals=2)
+
+print(changeDF)
+changeDF.to_csv('tables/Uncertainties_Area.csv')
 

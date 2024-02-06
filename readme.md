@@ -111,11 +111,16 @@ makePlots.py :
 
 Area_compareDatasets.py:   
 * load, clip and further process glacier outlines in the ROI to compare the different available data sets
+* compute area and area change uncertainty, output to table (DISCUSS! sum of uncertainties or root sum of squares...)
 
 Vol_compareDatasets.py:   
 * load, clip and further process volume rasters to compare the different available data sets
 
+Vol_changebysizeclass.py:  
+* get volume change by size class, for total vol change and change rate (---> m/a dif raster). Also computes vol errors by size class
 
+Vol_dherrorbysizeclass.py:    
+* computes variogram and terrain dependent elevation change errors by size classes, outputs tables
 
 
 ---

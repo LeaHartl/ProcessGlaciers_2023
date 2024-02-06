@@ -316,20 +316,54 @@ def figDZmap(meta):
     outlines3 = gu.Vector(meta['GI3']['shp'])
     outlines5 = gu.Vector(meta['GI5']['shp'])
 
-    fig = plt.figure(constrained_layout=False, figsize=(10, 7))
-    spec2 = gridspec.GridSpec(ncols=3, nrows=2, figure=fig)
-    ax1 = fig.add_subplot(spec2[:, :2])
+    fig = plt.figure(constrained_layout=False, figsize=(12, 6))
+    # spec2 = gridspec.GridSpec(ncols=3, nrows=2, figure=fig)
+#     ax1 = fig.add_subplot(spec2[:, :2])
+#     ax2 = fig.add_subplot(spec2[0, 2])
+#     ax3 = fig.add_subplot(spec2[1, 2])
+# # 
+    spec2 = gridspec.GridSpec(ncols=4, nrows=2, figure=fig)
+    ax11 = fig.add_subplot(spec2[:, 0])
+    ax1 = fig.add_subplot(spec2[:, 1:3])
+    ax2 = fig.add_subplot(spec2[0, 3])
+    ax3 = fig.add_subplot(spec2[1, 3])
 
-    ax2 = fig.add_subplot(spec2[0, 2])
-    ax3 = fig.add_subplot(spec2[1, 2])
-    # f2_ax4 = fig.add_subplot(spec2[1, 1])
+
+    # yr = ['2006', '2017/18', '2030', '2050', '2075', '2100']
+    yr = ['2006', '2017/18', '2030', '2050', '2100']
+    # cl = ['slategray', 'k', 'slategray', 'k', 'slategray', 'k']
+    cl = ['slategray', 'k', 'orange', 'lightblue', 'red']
+    ls = ['-', '-', '--', '--', '--']
+    icedata_sum = mt.icedata_sum
+    icedata_mean = mt.icedata_mean
+    icedata_median = mt.icedata_median
+    icedata_ar = mt.icedata_ar
+    for i, ice in enumerate(icedata_sum):
+        print(yr[i], ', zero sum: ', ice.shape, getnum(ice))
+
+    for i, ice in enumerate(icedata_sum):
+        ax11.plot(ice.sum(axis=1)*10*10*1e-9, (25+ice.index.values).astype(int), label=yr[i], linestyle=ls[i] , color=cl[i])
+        sm1 = ice.sum(axis=1)*100*1e-9
+
+        ax11.fill_betweenx(25+sm1.index, sm1.values-0.3*sm1.values, sm1.values+0.3*sm1.values, alpha=0.15, color=cl[i])
+        
+        # ax11_2 = ax11.twiny()
+        # ax11_2.plot(100*icedata_ar[i].sum(axis=1)*1e-6, (25+icedata_ar[i].index.values).astype(int), label=yr[i], linestyle=ls[i] , color=cl[i])
+
+    ax11.grid('both')
+    ax11.legend()
+    ax11.set_ylim([2000, 3800])
+    ax11.set_ylabel('Elevation (m)')
+    ax11.set_xlabel('Volume ($km^3$)')
+
 
     norm = colors.TwoSlopeNorm(vcenter=0, vmin=-3, vmax=0.1)
 
     # with fiona.open(meta['GI3']['shp'], "r") as shapefile:
     #     shapes = [feature["geometry"] for feature in shapefile]
 
-    raster = rasterio.open('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif')
+    raster = rasterio.open('data/dif_5m_20062017_ma_Clip.tif')
+    #raster = rasterio.open(meta['GI5']['f_dif_ma'])
     raster1 = np.reshape(raster.read(), (raster.read().shape[0]*raster.read().shape[1], raster.read().shape[2]))
 
     base1 = ax1.imshow(raster1, cmap='RdYlBu', norm=norm)
@@ -340,12 +374,14 @@ def figDZmap(meta):
    
     ax1.set_xlim([20000, 75000])
     ax1.set_ylim([179000, 229000])
-    ax1.set_xlabel('m')
-    ax1.set_ylabel('m')
+    ax1.ticklabel_format(axis='y', style='', scilimits=(0,0), useOffset=None, useLocale=None, useMathText=None)
+    # ax1.set_xlabel('m')
+    # ax1.set_ylabel('m')
     ax1.grid('both')
 
 
-    dz = xdem.DEM('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif')
+    # dz = xdem.DEM('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif')
+    dz = xdem.DEM('data/dif_5m_20062017_ma_Clip.tif')
     # print(dz.data)
     bins=np.arange(-6.5, 1, 0.25)
     hs, be = np.histogram(dz.data, bins=bins)
@@ -353,7 +389,7 @@ def figDZmap(meta):
     # convert counts (hs) to area for plot
     ax2.bar(bins[0:-1], hs*25*1e-6, color='slategray', edgecolor='k', width=0.2)
     ax2.grid('both')
-    ax2.set_ylabel('Area (km2)')
+    ax2.set_ylabel('Area ($km^2$)')
     ax2.set_xlabel('Mean annual elevation change (m/a)')
     ax2.set_xlim([-6.5, 0.5])
     ax2.yaxis.set_label_position("right")
@@ -361,9 +397,11 @@ def figDZmap(meta):
     ax2.yaxis.tick_right()
 
 
-    dat, sd, count, sm = getHyps('/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/dif_5m_20062017_ma_Clip.tif', 
-        '/Users/leahartl/Desktop/ELA_EAZ/v2/newDEMs/data/aligned_resampled_2_5m_tir1718_Clip.tif', 
+    dat, sd, count, sm = getHyps('data/dif_5m_20062017_ma_Clip.tif', 
+        'data/aligned_resampled_2_5m_tir1718_Clip.tif', 
         outlines3.ds.geometry, np.arange(2000, 4000, 50))
+    # dat, sd, count, sm = getHyps(meta['GI5']['f_dif_ma'], meta['GI5']['f_dem'][1],
+    #     outlines3.ds.geometry, np.arange(2000, 4000, 50))
         # gpd.read_file(meta['GI3']['shp']).geometry, np.arange(2000, 4000, 50))
 
     print(count.sum()*25)
@@ -392,21 +430,22 @@ def figDZmap(meta):
     # cb.ax.set_xscale('linear')
     # cbar_ax.set_xlabel('Mean annual elevation change 2006-2017/18 (m/a)', fontsize=10)
 
-    cbar_ax = ax1.inset_axes([0.1, -0.12, 0.8, 0.02])
+    cbar_ax = ax1.inset_axes([0.1, -0.13, 0.8, 0.02])
     cb=fig.colorbar(cm.ScalarMappable(cmap='RdYlBu', norm=norm), cax=cbar_ax, orientation='horizontal', extend='both')
     cb.ax.set_xscale('linear')
     cbar_ax.set_xlabel('Mean annual elevation change 2006-2017/18 (m/a)', fontsize=10)
 
 
+    lbl11 = ax11.annotate('a)', xy=(0.2, 3600),  xycoords='data',
+                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
+    lbl1 = ax1.annotate('b)', xy=(25000, 224000),  xycoords='data',
+                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
+    lbl2 = ax2.annotate('c)', xy=(-5, 34),  xycoords='data',
+                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
+    lbl3 = ax3.annotate('d)', xy=(-5, 3600),  xycoords='data',
+                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
 
-    lbl1 = ax1.annotate('a)', xy=(25000, 224000),  xycoords='data',
-                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
-    lbl2 = ax2.annotate('b)', xy=(-5, 34),  xycoords='data',
-                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
-    lbl3 = ax3.annotate('c)', xy=(-5, 3600),  xycoords='data',
-                       fontsize=15, horizontalalignment='left', verticalalignment='top',)
-
-    fig.savefig('plots/dz_ma_map.png', bbox_inches='tight', dpi=300)
+    fig.savefig('plots/dz_ma_map_1.png', bbox_inches='tight', dpi=300)
 
 # makes gridspec figure with 4 subplots: area by aspect, vol change (%) by aspect, by slope & cumulative vol and area change
 def figRelChange(meta, df):
@@ -580,7 +619,7 @@ def plotVolArHyps(goneGlaciers):
     fig.savefig('plots/VolArIndividualGlaciers.png', bbox_inches='tight', dpi=300)
 
 
-def plotHyps(goneGlaciers):
+def plotHyps(mt, goneGlaciers):
     yr = ['2006', '2017/18', '2030', '2050', '2075', '2100']
     cl = ['slategray', 'k', 'slategray', 'k', 'slategray', 'k']
     ls = ['-', '-', '--', '--', ':', ':']
@@ -641,10 +680,11 @@ def plotHyps(goneGlaciers):
     for a in ax:
         a.grid('both')
         a.set_ylim([2000, 3800])
-    fig.savefig('plots/HypsometryConstantChange.png', bbox_inches='tight', dpi=300)
+    fig.savefig('plots/HypsometryConstantChange_2.png', bbox_inches='tight', dpi=300)
 
 
-#
+# plotHyps(mt, goneGlaciers)
+# figDZmap(meta)
 figDZmap(meta)
 plt.show()
 stop
