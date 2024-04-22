@@ -16,7 +16,7 @@ def get_A(gp1, gp2, gp3, gp5, gpLIA, rgi, gi4):
     gp1['area'] = gp1['geometry'].area
     gp2['area'] = gp2['geometry'].area
     gp3['area'] = gp3['geometry'].area
-    gp5['area'] = gp5['geometry'].area
+    gp5['area'] = gp5['geometry'].area 
 
     gpLIA['area'] = gpLIA['geometry'].area
 
@@ -62,6 +62,13 @@ GI5 = meta['GI5']['shp']
 # load RGI 6:
 rgi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/11_rgi60_CentralEurope/11_rgi60_CentralEurope.shp')
 rgi.to_crs(gpd.read_file(GI1).crs, inplace=True)
+# load Patrick's list of RGI IDs:
+ids = pd.read_csv('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI_PIZ_OTZ_STB_2.csv')
+print(ids)
+print(rgi)
+rgi_in_roi_list = rgi.loc[rgi['RGIId'].isin(ids['rgi_id'].values)]
+print(rgi_in_roi_list)
+
 
 # load GI4:
 gi4 = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/GI_4_2015/GI_4_2015.shp')
@@ -73,20 +80,31 @@ cookRoi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023
 cookRoi.to_crs(gpd.read_file(GI1).crs, inplace=True)
 
 # clip rgi and gi4 with cook outline
-rgi_in_roi = gpd.clip(rgi, cookRoi)
+# rgi_in_roi = gpd.clip(rgi, cookRoi)
+rgi_in_roi = rgi_in_roi_list
+
 gi4_in_roi = gpd.clip(gi4, cookRoi)
 
+# print(rgi_in_roi, rgi_in_roi_list)
+
+missing_rgi = rgi_in_roi.loc[~rgi_in_roi['RGIId'].isin(rgi_in_roi_list['RGIId'].values)]
+print(missing_rgi)
+
+# missing_rgi.to_file('data/missing_rgi.shp')
+# rgi_in_roi.to_file('data/rgi_in_roi_clippedwcook.shp')
+# rgi_in_roi_list.to_file('data/rgi_in_roi_list.shp')
+print(rgi_in_roi.shape, rgi_in_roi_list.shape, missing_rgi.shape)
 
 # load GI LIA:
 lia = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/mergedOutlines/mergedLIA_3.shp')
 
 # load shapes as geodataframes and pass to the "get_A" function, output is a summary data frame:
 # dfNew = get_A(gpd.read_file(GI1), gpd.read_file(GI2), gpd.read_file(GI3), gpd.read_file(GI5), lia, rgi_in_roi, gi4_in_roi)
+dfNew = get_A(gpd.read_file(GI1), gpd.read_file(GI2), gpd.read_file(GI3), gpd.read_file(GI5), lia, rgi_in_roi_list, gi4_in_roi)
+dfNew['ar_km2'] =dfNew['area'] / 1e6
 
-# dfNew['ar_km2'] =dfNew['area'] / 1e6
-
-# dfNew.to_csv('tables/compare_area.csv')
-# print(dfNew)
+dfNew.to_csv('tables/compare_area.csv')
+print(dfNew)
 
 #--- Area uncertainties by size class for the regional inventories:
 def SizeClassesUNC(df):
@@ -105,6 +123,7 @@ def SizeClassesUNC(df):
     df['Uncertainty'] = df['area']*0.015
     #ädf.loc['toosmall', 'Uncertainty'] = df.loc['toosmall', 'area']*0.05
     df.loc['vsmall', 'Uncertainty'] = df.loc['vsmall', 'area']*0.05
+    df.loc['small', 'Uncertainty'] = df.loc['small', 'area']*0.05
     df.loc['all', 'Uncertainty'] = np.nan
     df.loc['all', 'Uncertainty'] = df['Uncertainty'].sum()
 

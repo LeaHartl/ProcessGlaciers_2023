@@ -38,11 +38,15 @@ def get_sum(raster, outline1, px_x, px_y):
     icetotal = icesum * px_x *px_y
     print(icetotal)
     print(icetotal/1e9)
-
     print('divided by area:', icetotal/outline1.geometry.area.sum())
 
+    print(outline1.geometry.area.sum())
 
+    icetotalv2 = np.nanmean(clippedice)*outline1.geometry.area.sum()
 
+    print('mean times area, ice v2:',icetotalv2)
+
+    
 
     # return 
 
@@ -98,10 +102,26 @@ def mergetiles_Hugon():
 cookRoi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/cook_area/cook_area.shp')
 
 # get relevant part of RGI 
-rgiroi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI_ROI.shp')
+# rgiroi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI_ROI.shp')
 
-clippedRGI = gpd.clip(rgiroi, cookRoi)
+
+# load RGI 6:
+rgi = gpd.read_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/11_rgi60_CentralEurope/11_rgi60_CentralEurope.shp')
+# rgi.to_crs(gpd.read_file(GI1).crs, inplace=True)
+# load Patrick's list of RGI IDs:
+ids = pd.read_csv('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI_PIZ_OTZ_STB_2.csv')
+# print(ids)
+# print(rgi)
+# rgi_in_roi_list = rgi.loc[rgi['RGIId'].isin(ids['rgi_id'].values)]
+# print(rgi_in_roi_list)
+
+
+
+# clippedRGI = gpd.clip(rgiroi, cookRoi)
+clippedRGI = rgi.loc[rgi['RGIId'].isin(ids['rgi_id'].values)]
 clippedRGI.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/clippedRGI.shp')
+
+
 
 
 # uncomment to load and process the various rasters:
@@ -113,23 +133,23 @@ clippedRGI.to_file('/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data
 # get_sum(ice_Helfricht, cookRoi, 10, 10)
 
 # Farinotti ice thickness clipped with ROI
-# farin = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/icedepthFarinotti/icedepthFarinotti.tif'
-# ice_farin = xdem.DEM(farin)
+farin = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/icedepthFarinotti/icedepthFarinotti.tif'
+ice_farin = xdem.DEM(farin)
 
-# get_sum(ice_farin, cookRoi, 25, 25)
+get_sum(ice_farin, clippedRGI, 25, 25)
 
 
 # Millan  ice thickness clipped with ROI
-# millan = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI-11_millan/THICKNESS_RGI-11_2021July09.tif'
-# ice_millan = xdem.DEM(millan)
-# get_sum(ice_millan, cookRoi, 50, 50)
+millan = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/RGI-11_millan/THICKNESS_RGI-11_2021July09.tif'
+ice_millan = xdem.DEM(millan)
+get_sum(ice_millan, clippedRGI, 50, 50)
 
 # # Hugonnet vol change clipped with ROI and RGI 
 # hugonnet = '/Users/leahartl/Desktop/ELA_EAZ/v2/ProcessGlaciers_2023/data/volchangeHugonnet2000_2020.tif'
 # volchange_hugonnet = xdem.DEM(hugonnet)
 # get_sum(volchange_hugonnet, clippedRGI, 100, 100)
 
-
+stop
 # dz1969_97 = xdem.DEM(meta['GI2']['f_dif_ma'])
 # gg69 = gpd.read_file(meta['GI1']['shp'])
 

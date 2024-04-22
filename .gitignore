@@ -6,6 +6,7 @@ outlines/
 outputXdem/
 plots/
 tables/
+geoutils/
 data/
 figs/
 __pycache__/helpers.cpython-39.pyc

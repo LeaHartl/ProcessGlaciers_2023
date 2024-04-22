@@ -246,11 +246,11 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     #flight_years.plot(ax = ax, alpha=0.7, column='JAHR', label='flight years')
 
     outlines_clip2017.plot(ax = ax, alpha=1, edgecolor="k", facecolor='none', label='2017', zorder=10)
-    outlines_clip2018.plot(ax = ax, alpha=1, edgecolor="red", facecolor='none', label='2018', zorder=10)
-    outlines3.ds.plot(ax = ax, edgecolor="grey", facecolor='none', linestyle='--', zorder=8)
+    outlines_clip2018.plot(ax = ax, alpha=1, edgecolor="blue", facecolor='none', label='2018', zorder=10)
+    outlines3.ds.plot(ax = ax, edgecolor="deepskyblue", facecolor='none', linestyle='-', zorder=8)
 
-    RGI.plot(ax = ax, alpha=1, linewidth=0.5, edgecolor="lightblue", facecolor='none', label='RGI', zorder=5)
-    cookRoi.plot(ax = ax, alpha=1, edgecolor="blue", facecolor='none', label='region of interest')
+    RGI.plot(ax = ax, alpha=1, linewidth=0.8, edgecolor="lightgrey", facecolor='none', label='RGI', zorder=5)
+    #cookRoi.plot(ax = ax, alpha=1, edgecolor="blue", facecolor='none', label='region of interest')
     # outlines3.ds.plot(ax = ax, edgecolor="grey", facecolor='none', linestyle='--')
     # countries.plot(ax = ax, alpha=0.7, edgecolor='k', facecolor='none', linestyle='--', linewidth=2)
     #countries.plot(ax = ax, alpha=1, edgecolor="k", facecolor='none')
@@ -271,11 +271,11 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     axins = ax.inset_axes([0.8, 0.05, 0.35, 0.35])
     #rasterio.plot.show(raster, ax=axins, cmap='cividis')
     sulz_clip2017.plot(ax = axins, alpha=0.5, edgecolor="k", facecolor='k', label='2017', hatch='//')
-    sulz_clip2018.plot(ax = axins, alpha=0.5, edgecolor="k", facecolor='k', label='2018', hatch='+')
-    outlines3.ds.plot(ax = axins, edgecolor="grey", facecolor='none', linestyle='--', zorder=11)
+    sulz_clip2018.plot(ax = axins, alpha=0.5, edgecolor="b", facecolor='k', label='2018', hatch='+')
+    outlines3.ds.plot(ax = axins, edgecolor="deepskyblue", facecolor='none', linestyle='-', zorder=11)
     outlines_clip2017.plot(ax = axins, alpha=1, edgecolor="k", facecolor='none',zorder=12)#, categorical=True, legend=True)
-    outlines_clip2018.plot(ax = axins, alpha=1, edgecolor="r", facecolor='none',zorder=12)#, categorical=True, legend=True)
-    RGI.plot(ax = axins, alpha=1, edgecolor="lightblue", facecolor='none', label='RGI', zorder=5)
+    outlines_clip2018.plot(ax = axins, alpha=1, edgecolor="blue", facecolor='none',zorder=12)#, categorical=True, legend=True)
+    RGI.plot(ax = axins, alpha=1, edgecolor="lightgrey", facecolor='none', label='RGI', zorder=5)
 
 
 
@@ -283,6 +283,9 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     axins.set_ylim([203000, 206200])
     # axins.set_xticklabels([])
     axins.set_yticklabels([])
+    axins.set_xticklabels([])
+    axins.set_xticks([])
+    axins.set_yticks([])
 
 
     axins2 = ax.inset_axes([-0.1, 0.7, 0.4, 0.6])
@@ -290,12 +293,12 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     #rasterio.plot.show(raster, ax=axins, cmap='cividis')
     countries.plot(ax = axins2, alpha=1, edgecolor="k", facecolor='none')#, categorical=True, legend=True)
     #formarker.plot(ax = axins2, marker='*', color='blue', markersize=200)
-    RGI.plot(ax = axins2, alpha=1, linewidth=0.5, edgecolor="lightblue", facecolor='lightblue', label='RGI', zorder=5)
+    RGI.plot(ax = axins2, alpha=1, linewidth=0.5, edgecolor="royalblue", facecolor='royalblue', label='RGI', zorder=5)
     # ax.set_xlim([20000, 75000])
     # ax.set_ylim([179000, 229000])
 
 
-    axins2.add_patch(Rectangle((20000, 179000), 75000-20000, 229000-179000, facecolor="grey"))
+    axins2.add_patch(Rectangle((20000, 179000), 75000-20000, 229000-179000, facecolor="lightgrey"))
     axins2.set_xticklabels([])
     axins2.set_yticklabels([])
     axins2.set_xticks([])
@@ -311,12 +314,12 @@ def figROI(outlines_clip2017, outlines_clip2018, GI3_y, GI5_y):
     
 
     lnGI17 = Line2D([0], [0], linestyle = '-', label='Updated outlines (DEM 2017)', color='k')
-    lnGI18 = Line2D([0], [0], linestyle = '-', label='Updated outlines (DEM 2018)', color='r')
-    lnGI3 = Line2D([0], [0], linestyle = '--', label='GI3 (2006)', color='grey')
-    lnRGI = Line2D([0], [0], linestyle = '-', label='RGI', color='LightBlue')
-    lnROI = Line2D([0], [0], linestyle = '-', label='Region of interest', color='blue')
+    lnGI18 = Line2D([0], [0], linestyle = '-', label='Updated outlines (DEM 2018)', color='blue')
+    lnGI3 = Line2D([0], [0], linestyle = '-', label='GI3 (2006)', color='deepskyblue')
+    lnRGI = Line2D([0], [0], linestyle = '-', label='RGI', color='lightgrey')
+    #lnROI = Line2D([0], [0], linestyle = '-', label='Region of interest', color='blue')
     
-    handles = [lnGI17, lnGI18, lnGI3, lnRGI, lnROI]
+    handles = [lnGI17, lnGI18, lnGI3, lnRGI]
 
     # add manual symbols to auto legend
     fig.legend(handles=handles, loc='upper right', bbox_to_anchor=(0.9, 0.95), ncol=1)
